@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Kanit } from "next/font/google";
 import "./globals.css";
+import { ThemeProvider } from '@/components/ThemeProvider'
 
 const kanit = Kanit({
   variable: "--font-kanit",
@@ -15,12 +16,9 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html
-      lang="th"
-      className={`${kanit.variable} h-full antialiased`}
-    >
+    <html lang="th" className={`${kanit.variable} h-full antialiased`} suppressHydrationWarning>
       <body className={`${kanit.className} min-h-full flex flex-col`}>
-        {children}
+        <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>
   );

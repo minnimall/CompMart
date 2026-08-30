@@ -15,14 +15,14 @@ export default async function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#dbeaff] to-[#eef5ff]">
+    <div className="min-h-screen bg-bg">
       <Navbar />
 
       <main className="mx-auto max-w-6xl px-4 py-10 sm:px-8">
         {/* Hero */}
         <div className="relative h-[320px] overflow-hidden rounded-[2rem] shadow-[10px_10px_26px_rgba(20,80,143,0.3),-6px_-6px_18px_rgba(255,255,255,0.4)] sm:h-[420px]">
           <img
-            src="/images/hero-main.jpg"
+            src="/images/hero-main2.jpg"
             alt="CompMart"
             className="absolute inset-0 h-full w-full object-cover object-top"
           />
@@ -51,7 +51,7 @@ export default async function Home() {
               {categories.map((cat) =>(
                 <a key={cat.id}
                     href={`/category/${cat.slug}`}
-                    className="flex items-center gap-2 rounded-2xl bg-surface px-4 py-2.5 text-sm font-medium text-text shadow-[5px_5px_12px_rgba(20,80,143,0.15),-5px_-5px_12px_rgba(255,255,255,0.9)] transition hover:text-primary active:shadow-[inset_3px_3px_8px_rgba(20,80,143,0.2)]"
+                    className="flex items-center gap-2 rounded-2xl bg-surface px-4 py-2.5 text-sm font-medium text-text shadow-[1px_1px_3px_rgba(20,80,143,0.15),-1px_-1px_3px_rgba(255,255,255,0.9)] transition hover:text-primary active:shadow-[inset_3px_3px_8px_rgba(20,80,143,0.2)]"
                   >
                     <span className="flex h-8 w-8 items-center justify-center rounded-full bg-surface-2 text-primary">
                       {getCategoryIcon(cat.slug)}
