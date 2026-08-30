@@ -24,9 +24,9 @@ body {
 }
 
 @theme {
-  --color-bg: #eaf3ff;
-  --color-surface: #ffffff;
-  --color-surface-2: #f1f6fc;
+  --color-bg: #eaf2ff;
+  --color-surface: #f4f8ff;
+  --color-surface-2: #e9f1ff;
   --color-border: #dbe7f7;
   --color-text: #0b2545;
   --color-text-muted: #64809f;

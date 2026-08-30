@@ -11,19 +11,18 @@ export default async function LoginPage({
 
   return (
     <div>
-      <span className="text-xs font-semibold uppercase tracking-widest text-primary">
-        Auth // Login
-      </span>
-      <h1 className="mt-3 text-3xl font-semibold text-text">เข้าสู่ระบบ</h1>
+      <h1 className="text-3xl font-semibold text-text">เข้าสู่ระบบ</h1>
       <p className="mt-2 text-sm text-text-muted">กลับมาเช็คของที่ถูกใจต่อ</p>
 
       {params.message && (
-        <p className="mt-6 rounded-xl border-l-2 border-secondary bg-secondary/5 px-4 py-3 text-sm text-text">
+        <p className="mt-6 rounded-2xl bg-secondary/10 px-4 py-3 text-sm text-text
+          shadow-[inset_2px_2px_6px_rgba(22,184,201,0.15)]">
           {params.message}
         </p>
       )}
       {params.error && (
-        <p className="mt-6 rounded-xl border-l-2 border-red-500 bg-red-50 px-4 py-3 text-sm text-text">
+        <p className="mt-6 rounded-2xl bg-red-50 px-4 py-3 text-sm text-text
+          shadow-[inset_2px_2px_6px_rgba(239,68,68,0.15)]">
           {params.error}
         </p>
       )}
@@ -46,7 +45,10 @@ export default async function LoginPage({
 
         <button
           type="submit"
-          className="group flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3.5 font-medium text-white shadow-md shadow-primary/25 transition hover:bg-primary-dark focus:outline-none focus:ring-4 focus:ring-primary/20"
+          className="group flex w-full items-center justify-center gap-2 rounded-2xl bg-primary py-4 font-medium text-white transition
+            shadow-[6px_6px_14px_rgba(20,80,143,0.35),-4px_-4px_10px_rgba(255,255,255,0.4)]
+            hover:bg-primary-dark
+            active:shadow-[inset_4px_4px_10px_rgba(10,40,80,0.4),inset_-2px_-2px_6px_rgba(255,255,255,0.15)] active:translate-y-[1px]"
         >
           เข้าสู่ระบบ
           <svg
