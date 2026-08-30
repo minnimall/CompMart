@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { Navbar } from '@/components/layout/Navbar'
+import { getCategoryIcon } from '@/lib/categoryIcons'
 
 export default async function Home() {
   const supabase = await createClient()
@@ -48,11 +49,15 @@ export default async function Home() {
           {categories && categories.length > 0 ? (
             <div className="mt-4 flex flex-wrap gap-3">
               {categories.map((cat) =>(
-                <a key={cat.id} href={`/category/${cat.slug}`}
-                  className="rounded-2xl bg-surface px-5 py-3 text-sm font-medium text-text shadow-[5px_5px_12px_rgba(20,80,143,0.15),-5px_-5px_12px_rgba(255,255,255,0.9)] transition hover:text-primary active:shadow-[inset_3px_3px_8px_rgba(20,80,143,0.2)]"
-              >
-                {cat.name}
-              </a>  
+                <a key={cat.id}
+                    href={`/category/${cat.slug}`}
+                    className="flex items-center gap-2 rounded-2xl bg-surface px-4 py-2.5 text-sm font-medium text-text shadow-[5px_5px_12px_rgba(20,80,143,0.15),-5px_-5px_12px_rgba(255,255,255,0.9)] transition hover:text-primary active:shadow-[inset_3px_3px_8px_rgba(20,80,143,0.2)]"
+                  >
+                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-surface-2 text-primary">
+                      {getCategoryIcon(cat.slug)}
+                    </span>
+                    {cat.name}
+                </a> 
               ))}
             </div>
           ) : (
@@ -76,6 +81,11 @@ export default async function Home() {
             </div>
           ) : (
             <div className="mt-4 rounded-2xl bg-surface p-10 text-center shadow-[inset_3px_3px_10px_rgba(20,80,143,0.1),inset_-3px_-3px_10px_rgba(255,255,255,0.8)]">
+              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-surface-2 text-text-muted shadow-[inset_3px_3px_8px_rgba(20,80,143,0.12),inset_-3px_-3px_8px_rgba(255,255,255,0.8)]">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <path d="M3 8l2-4h14l2 4M3 8v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8M3 8h18M9 12h6" />
+                </svg>
+              </div>
               <p className="text-text-muted">ยังไม่มีสินค้าในระบบตอนนี้</p>
               {user && (
                 <a href="/products/new" className="mt-3 inline-block text-sm font-medium text-primary hover:text-primary-dark">
