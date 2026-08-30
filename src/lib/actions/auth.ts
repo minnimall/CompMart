@@ -14,7 +14,7 @@ export async function signUp(formData: FormData) {
         email,
         password,
         options: {
-        data: { username }, // ส่งไปให้ trigger ใช้สร้าง profile
+        data: { username },
         },
     })
 
@@ -31,10 +31,22 @@ export async function signIn(formData: FormData) {
     const email = formData.get('email') as string
     const password = formData.get('password') as string
 
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password })
 
     if (error) {
         redirect(`/login?error=${encodeURIComponent(error.message)}`)
+    }
+
+    // เช็คว่าบัญชีถูก soft-delete ไปหรือยัง
+    const { data: profile } = await supabase
+        .from('profiles')
+        .select('is_deleted')
+        .eq('id', data.user.id)
+        .single()
+
+    if (profile?.is_deleted) {
+        await supabase.auth.signOut()
+        redirect('/login?error=account_deleted')
     }
 
     redirect('/')

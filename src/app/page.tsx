@@ -32,8 +32,8 @@ export default async function Home() {
             {/* <h1 className="text-2xl font-semibold text-white sm:text-3xl">
               {user ? `ยินดีต้อนรับกลับมา, ${username}` : 'ตลาดอุปกรณ์คอมและเกมมิ่งเกียร์'}
             </h1> */}
-            <p className="mt-2 max-w-md text-sm text-white/85 sm:text-base">
-              ซื้อขายอุปกรณ์คอมพิวเตอร์และเกมมิ่งเกียร์มือสอง-มือหนึ่ง
+            <p className="mt-2 max-w-md text-sm text-white/95 sm:text-base">
+              Marketplace ซื้อขายอุปกรณ์คอมพิวเตอร์และเกมมิ่งเกียร์มือสอง-มือหนึ่ง
             </p>
             {user && (
               <a href="/products/new" className="mt-6 inline-block w-fit rounded-2xl bg-white px-6 py-3 text-sm font-medium text-primary shadow-[4px_4px_12px_rgba(0,0,0,0.15)] transition hover:bg-white/90">

@@ -14,9 +14,9 @@ export function ThemeToggle() {
 
     return (
         <button
-        onClick={() => setTheme(isDark ? 'light' : 'dark')}
-        aria-label="สลับธีมสว่าง/มืด"
-        className="flex h-11 w-11 items-center justify-center rounded-full bg-surface text-primary shadow-[4px_4px_10px_rgba(20,80,143,0.15),-3px_-3px_8px_rgba(255,255,255,0.7)] transition active:shadow-[inset_2px_2px_6px_rgba(20,80,143,0.2)]"
+            onClick={() => setTheme(isDark ? 'light' : 'dark')}
+            aria-label="สลับธีมสว่าง/มืด"
+            className="flex h-11 w-11 items-center justify-center rounded-full bg-surface text-primary shadow-[4px_4px_10px_rgba(20,80,143,0.15),-3px_-3px_8px_rgba(255,255,255,0.7)] transition active:shadow-[inset_2px_2px_6px_rgba(20,80,143,0.2)] cursor-pointer"
         >
         {isDark ? (
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">

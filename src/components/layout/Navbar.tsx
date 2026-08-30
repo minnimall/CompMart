@@ -7,9 +7,16 @@ export async function Navbar() {
     const { data: { user } } = await supabase.auth.getUser()
 
     let username = ''
+    let avatarUrl: string | null = null
+
     if (user) {
-        const { data: profile } = await supabase.from('profiles').select('username').eq('id', user.id).single()
+        const { data: profile } = await supabase
+            .from('profiles')
+            .select('username, avatar_url')
+            .eq('id', user.id)
+            .single()
         username = profile?.username ?? user.email?.split('@')[0] ?? 'สมาชิก'
+        avatarUrl = profile?.avatar_url ?? null
     }
 
     return (
@@ -27,7 +34,7 @@ export async function Navbar() {
             
             <div className="flex items-center gap-3">
                 <ThemeToggle />
-                {user ? <UserMenu username={username} /> : (
+                {user ? <UserMenu username={username} avatarUrl={avatarUrl} /> : (
                     <div className="flex items-center gap-2">
                         <a href="/login" className="rounded-xl px-4 py-2 text-sm font-medium text-text transition hover:text-primary">เข้าสู่ระบบ</a>
                         <a href="/register" className="rounded-xl bg-primary px-4 py-2 text-sm font-medium text-white shadow-[4px_4px_10px_rgba(20,80,143,0.3),-3px_-3px_8px_rgba(255,255,255,0.5)] transition hover:bg-primary-dark">สมัครสมาชิก</a>

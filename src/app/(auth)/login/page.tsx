@@ -2,6 +2,14 @@ import { signIn } from '@/lib/actions/auth'
 import { AuthInput } from '@/components/auth/AuthInput'
 import { PasswordInput } from '@/components/auth/PasswordInput'
 
+const ERROR_MESSAGES: Record<string, string> = {
+    account_deleted: 'บัญชีนี้ถูกปิดใช้งานไปแล้ว หากต้องการกู้คืนกรุณาติดต่อฝ่ายสนับสนุน',
+}
+
+function resolveErrorMessage(error: string) {
+    return ERROR_MESSAGES[error] ?? error
+}
+
 export default async function LoginPage({
     searchParams,
 }: {
@@ -23,7 +31,7 @@ export default async function LoginPage({
         {params.error && (
             <p className="mt-6 rounded-2xl bg-red-50 px-4 py-3 text-sm text-text
             shadow-[inset_2px_2px_6px_rgba(239,68,68,0.15)]">
-            {params.error}
+            {resolveErrorMessage(params.error)}
             </p>
         )}
 
