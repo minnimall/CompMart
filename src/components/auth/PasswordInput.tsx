@@ -17,10 +17,7 @@ export function PasswordInput({
 
     return (
         <div>
-        <label
-            htmlFor={name}
-            className="mb-1.5 block text-xs font-mono uppercase tracking-wider text-text-muted"
-        >
+        <label htmlFor={name} className="mb-1.5 block text-sm font-medium text-text">
             {label}
         </label>
         <div className="relative">
@@ -37,12 +34,12 @@ export function PasswordInput({
             required
             minLength={minLength}
             autoComplete={autoComplete}
-            className="w-full rounded-lg border border-border bg-surface-2 py-3 pl-11 pr-11 text-text outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/25"
+            className="w-full rounded-xl border border-border bg-surface-2 py-3 pl-11 pr-11 text-text outline-none transition focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10"
             />
             <button
             type="button"
             onClick={() => setVisible((v) => !v)}
-            className="absolute right-3.5 top-1/2 -translate-y-1/2 text-text-muted transition hover:text-text"
+            className="absolute right-3.5 top-1/2 -translate-y-1/2 text-text-muted transition hover:text-primary"
             aria-label={visible ? 'ซ่อนรหัสผ่าน' : 'แสดงรหัสผ่าน'}
             >
             {visible ? (
