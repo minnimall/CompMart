@@ -8,16 +8,14 @@ const STYLES: Record<
     {
         bar: string
         text: string
-        bg: string
         iconBg: string
         icon: ReactElement
     }
 > = {
     success: {
-        bar: 'bg-gradient-to-r from-green-400 to-emerald-500',
-        text: 'text-emerald-600',
-        bg: 'bg-[#e8f8ef]',
-        iconBg: 'bg-[#d5f1df]',
+        bar: 'bg-gradient-to-r from-secondary to-emerald-400',
+        text: 'text-secondary',
+        iconBg: 'bg-secondary/15',
         icon: (
             <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                 <path
@@ -28,12 +26,10 @@ const STYLES: Record<
             </svg>
         ),
     },
-
     error: {
         bar: 'bg-gradient-to-r from-red-400 to-rose-500',
-        text: 'text-red-500',
-        bg: 'bg-[#fff0f0]',
-        iconBg: 'bg-[#ffe0e0]',
+        text: 'text-red-500 dark:text-red-400',
+        iconBg: 'bg-red-500/15',
         icon: (
             <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                 <path
@@ -44,12 +40,10 @@ const STYLES: Record<
             </svg>
         ),
     },
-
     info: {
-        bar: 'bg-gradient-to-r from-blue-400 to-indigo-500',
-        text: 'text-blue-500',
-        bg: 'bg-[#edf4ff]',
-        iconBg: 'bg-[#dce9ff]',
+        bar: 'bg-gradient-to-r from-primary to-indigo-400',
+        text: 'text-primary',
+        iconBg: 'bg-primary/15',
         icon: (
             <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                 <path
@@ -62,109 +56,30 @@ const STYLES: Record<
     },
 }
 
-export function ToastCard({
-    toast,
-    onDone,
-}: {
-    toast: ToastItem
-    onDone: () => void
-}) {
+export function ToastCard({ toast, onDone }: { toast: ToastItem; onDone: () => void }) {
     useEffect(() => {
         const timer = setTimeout(onDone, toast.duration)
-
         return () => clearTimeout(timer)
     }, [toast.duration, onDone])
 
     const s = STYLES[toast.type]
 
     return (
-        <div
-            className={`
-                group
-                animate-toast-in
-                relative
-                w-[360px]
-                max-w-[calc(100vw-32px)]
-                overflow-hidden
-                rounded-[24px]
-                border
-                border-white/80
-                ${s.bg}
-                
-                /* Clay outer shadow */
-                shadow-[
-                    10px_10px_20px_rgba(163,177,198,0.35),
-                    -10px_-10px_20px_rgba(255,255,255,0.9),
-                    inset_2px_2px_4px_rgba(255,255,255,0.7),
-                    inset_-2px_-2px_4px_rgba(163,177,198,0.12)
-                ]
+        <div className="animate-toast-in group relative w-[360px] max-w-[calc(100vw-32px)] overflow-hidden rounded-[24px] border border-border bg-surface shadow-[10px_10px_22px_rgba(20,80,143,0.18),-8px_-8px_18px_rgba(255,255,255,0.85)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[12px_12px_26px_rgba(20,80,143,0.22),-10px_-10px_20px_rgba(255,255,255,0.9)] dark:shadow-[8px_8px_20px_rgba(0,0,0,0.5),-4px_-4px_10px_rgba(255,255,255,0.03)] dark:hover:shadow-[10px_10px_24px_rgba(0,0,0,0.55),-4px_-4px_12px_rgba(255,255,255,0.04)]">
+            {/* Soft top highlight */}
+            <div className="pointer-events-none absolute left-5 right-5 top-1 h-8 rounded-full bg-white/40 blur-md dark:bg-white/[0.03]" />
 
-                transition-all
-                duration-300
-                hover:-translate-y-1
-                hover:shadow-[
-                    14px_14px_25px_rgba(163,177,198,0.4),
-                    -12px_-12px_24px_rgba(255,255,255,0.95),
-                    inset_2px_2px_5px_rgba(255,255,255,0.8),
-                    inset_-2px_-2px_5px_rgba(163,177,198,0.12)
-                ]
-            `}
-        >
-            {/* Soft highlight */}
-            <div
-                className="
-                    pointer-events-none
-                    absolute
-                    left-5
-                    right-5
-                    top-1
-                    h-8
-                    rounded-full
-                    bg-white/50
-                    blur-md
-                "
-            />
-
-            {/* Content */}
             <div className="relative flex items-center gap-4 p-4">
                 {/* Icon */}
                 <div
-                    className={`
-                        ${s.iconBg}
-                        ${s.text}
-                        flex
-                        h-11
-                        w-11
-                        shrink-0
-                        items-center
-                        justify-center
-                        rounded-[16px]
-
-                        shadow-[
-                            4px_4px_8px_rgba(163,177,198,0.25),
-                            -4px_-4px_8px_rgba(255,255,255,0.8),
-                            inset_1px_1px_2px_rgba(255,255,255,0.7)
-                        ]
-
-                        transition-transform
-                        duration-300
-                        group-hover:scale-105
-                    `}
+                    className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-[16px] shadow-[4px_4px_10px_rgba(20,80,143,0.12),-3px_-3px_8px_rgba(255,255,255,0.8)] transition-transform duration-300 group-hover:scale-105 dark:shadow-[4px_4px_10px_rgba(0,0,0,0.4),-2px_-2px_6px_rgba(255,255,255,0.03)] ${s.iconBg} ${s.text}`}
                 >
                     {s.icon}
                 </div>
 
                 {/* Message */}
                 <div className="min-w-0 flex-1">
-                    <p
-                        className="
-                            text-sm
-                            font-semibold
-                            leading-5
-                            tracking-[-0.01em]
-                            text-slate-700
-                        "
-                    >
+                    <p className="text-sm font-semibold leading-5 tracking-[-0.01em] text-text">
                         {toast.message}
                     </p>
                 </div>
@@ -173,64 +88,20 @@ export function ToastCard({
                 <button
                     type="button"
                     onClick={onDone}
-                    aria-label="Close notification"
-                    className="
-                        flex
-                        h-8
-                        w-8
-                        shrink-0
-                        items-center
-                        justify-center
-                        rounded-xl
-                        text-slate-400
-
-                        shadow-[
-                            3px_3px_6px_rgba(163,177,198,0.2),
-                            -3px_-3px_6px_rgba(255,255,255,0.7)
-                        ]
-
-                        transition-all
-                        duration-200
-
-                        hover:scale-105
-                        hover:text-slate-600
-
-                        active:scale-95
-                        active:shadow-[
-                            inset_2px_2px_4px_rgba(163,177,198,0.25),
-                            inset_-2px_-2px_4px_rgba(255,255,255,0.7)
-                        ]
-                    "
+                    aria-label="ปิดการแจ้งเตือน"
+                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-text-muted shadow-[3px_3px_7px_rgba(20,80,143,0.1),-3px_-3px_7px_rgba(255,255,255,0.75)] transition-all duration-200 hover:scale-105 hover:text-text active:scale-95 active:shadow-[inset_2px_2px_4px_rgba(20,80,143,0.15),inset_-2px_-2px_4px_rgba(255,255,255,0.7)] dark:shadow-[3px_3px_8px_rgba(0,0,0,0.4),-2px_-2px_6px_rgba(255,255,255,0.02)] dark:active:shadow-[inset_2px_2px_4px_rgba(0,0,0,0.4),inset_-1px_-1px_3px_rgba(255,255,255,0.03)]"
                 >
-                    <svg
-                        className="h-4 w-4"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        viewBox="0 0 24 24"
-                    >
-                        <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M6 18L18 6M6 6l12 12"
-                        />
+                    <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                     </svg>
                 </button>
             </div>
 
             {/* Progress */}
-            <div className="mx-4 mb-3 h-1.5 overflow-hidden rounded-full bg-black/[0.04] shadow-inner">
+            <div className="mx-4 mb-3 h-1.5 overflow-hidden rounded-full bg-border/70 shadow-inner dark:bg-white/5">
                 <div
-                    className={`
-                        animate-toast-progress
-                        h-full
-                        rounded-full
-                        ${s.bar}
-                        shadow-[0_1px_4px_rgba(0,0,0,0.15)]
-                    `}
-                    style={{
-                        animationDuration: `${toast.duration}ms`,
-                    }}
+                    className={`animate-toast-progress h-full rounded-full shadow-[0_1px_4px_rgba(0,0,0,0.15)] ${s.bar}`}
+                    style={{ animationDuration: `${toast.duration}ms` }}
                 />
             </div>
         </div>

@@ -13,7 +13,7 @@ export async function updateProfile(formData: FormData) {
 
     const username = formData.get('username')?.toString() ?? ''
     const full_name = formData.get('full_name')?.toString() ?? ''
-    const phone = formData.get('phone')?.toString() ?? ''
+    const phone = (formData.get('phone') as string).replace(/\D/g, '')
     const address = formData.get('address')?.toString() ?? ''
 
     if (!username.trim()) {
