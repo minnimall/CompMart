@@ -37,7 +37,7 @@ export async function Navbar() {
                 {user ? <UserMenu username={username} avatarUrl={avatarUrl} /> : (
                     <div className="flex items-center gap-2">
                         <a href="/login" className="rounded-xl px-4 py-2 text-sm font-medium text-text transition hover:text-primary">เข้าสู่ระบบ</a>
-                        <a href="/register" className="rounded-xl bg-primary px-4 py-2 text-sm font-medium text-white shadow-[4px_4px_10px_rgba(20,80,143,0.3),-3px_-3px_8px_rgba(255,255,255,0.5)] transition hover:bg-primary-dark">สมัครสมาชิก</a>
+                        <a href="/register" className="rounded-xl bg-primary px-4 py-2 text-sm font-medium text-white transition hover:bg-primary-dark">สมัครสมาชิก</a>
                     </div>
                 )}
             </div>

@@ -2,17 +2,32 @@ import { createClient } from '@/lib/supabase/server'
 import { Navbar } from '@/components/layout/Navbar'
 import { getCategoryIcon } from '@/lib/categoryIcons'
 
-export default async function Home() {
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{ category?: string }>
+}) {
+  const { category: selectedSlug } = await searchParams
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   const { data: categories } = await supabase.from('categories').select('*')
-  const { data: products } = await supabase
+
+  const activeCategory = categories?.find((c) => c.slug === selectedSlug)
+
+  let productsQuery = supabase
     .from('products')
     .select('id, title, price, brand, condition, category_id, categories(name, slug), product_images(image_url, is_primary, sort_order)')
     .eq('status', 'active')
     .eq('is_deleted', false)
     .order('created_at', { ascending: false })
-    .limit(12)
+
+  if (activeCategory) {
+    productsQuery = productsQuery.eq('category_id', activeCategory.id)
+  } else {
+    productsQuery = productsQuery.limit(12)
+  }
+
+  const { data: products } = await productsQuery
 
   let username = ''
   if (user) {
@@ -57,18 +72,37 @@ export default async function Home() {
         <section className="mt-10">
           <h2 className="text-lg font-semibold text-text">หมวดหมู่</h2>
           {categories && categories.length > 0 ? (
-            <div className="mt-4 flex flex-wrap gap-3">
-              {categories.map((cat) => (
-                <a key={cat.id}
-                  href={`/category/${cat.slug}`}
-                  className="flex items-center gap-2 rounded-2xl bg-surface px-4 py-2.5 text-sm font-medium text-text shadow-[1px_1px_3px_rgba(20,80,143,0.15),-1px_-1px_3px_rgba(255,255,255,0.9)] dark:shadow-[1px_1px_4px_rgba(0,0,0,0.4),-1px_-1px_3px_rgba(255,255,255,0.03)] transition hover:text-primary active:shadow-[inset_3px_3px_8px_rgba(20,80,143,0.2)] dark:active:shadow-[inset_3px_3px_8px_rgba(0,0,0,0.5)]"
-                >
-                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-surface-2 text-primary">
-                    {getCategoryIcon(cat.slug)}
-                  </span>
-                  {cat.name}
-                </a>
-              ))}
+            <div className="mt-4 flex gap-3 overflow-x-auto pb-1 [scrollbar-width:none] sm:flex-wrap sm:overflow-visible sm:pb-0 [&::-webkit-scrollbar]:hidden">
+              <a
+                href="/"
+                className={`flex shrink-0 items-center gap-2 rounded-2xl px-4 py-2.5 text-sm font-medium transition ${
+                  !activeCategory
+                    ? 'bg-primary text-white shadow-[4px_4px_10px_rgba(20,80,143,0.3)]'
+                    : 'bg-surface text-text shadow-[1px_1px_3px_rgba(20,80,143,0.15),-1px_-1px_3px_rgba(255,255,255,0.9)] hover:text-primary dark:shadow-[1px_1px_4px_rgba(0,0,0,0.4),-1px_-1px_3px_rgba(255,255,255,0.03)]'
+                }`}
+              >
+                ทั้งหมด
+              </a>
+              {categories.map((cat) => {
+                const isActive = cat.slug === selectedSlug
+                return (
+                  <a key={cat.id}
+                    href={`/?category=${cat.slug}`}
+                    className={`flex shrink-0 items-center gap-2 rounded-2xl px-4 py-2.5 text-sm font-medium transition ${
+                      isActive
+                        ? 'bg-primary text-white shadow-[4px_4px_10px_rgba(20,80,143,0.3)]'
+                        : 'bg-surface text-text shadow-[1px_1px_3px_rgba(20,80,143,0.15),-1px_-1px_3px_rgba(255,255,255,0.9)] hover:text-primary dark:shadow-[1px_1px_4px_rgba(0,0,0,0.4),-1px_-1px_3px_rgba(255,255,255,0.03)] dark:active:shadow-[inset_3px_3px_8px_rgba(0,0,0,0.5)] active:shadow-[inset_3px_3px_8px_rgba(20,80,143,0.2)]'
+                    }`}
+                  >
+                    <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${
+                      isActive ? 'bg-white/20 text-white' : 'bg-surface-2 text-primary'
+                    }`}>
+                      {getCategoryIcon(cat.slug)}
+                    </span>
+                    {cat.name}
+                  </a>
+                )
+              })}
             </div>
           ) : (
             <p className="mt-4 text-sm text-text-muted">ยังไม่มีหมวดหมู่สินค้า</p>
@@ -78,7 +112,9 @@ export default async function Home() {
         {/* สินค้า */}
         <section className="mt-10">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-text">สินค้าล่าสุด</h2>
+            <h2 className="text-lg font-semibold text-text">
+              {activeCategory ? `สินค้าในหมวด ${activeCategory.name}` : 'สินค้าล่าสุด'}
+            </h2>
             {products && products.length > 0 && (
               <span className="text-sm text-text-muted">{products.length} รายการ</span>
             )}
@@ -134,7 +170,9 @@ export default async function Home() {
                   <path d="M3 8l2-4h14l2 4M3 8v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8M3 8h18M9 12h6" />
                 </svg>
               </div>
-              <p className="text-text-muted">ยังไม่มีสินค้าในระบบตอนนี้</p>
+              <p className="text-text-muted">
+                {activeCategory ? 'ยังไม่มีสินค้าในหมวดหมู่นี้' : 'ยังไม่มีสินค้าในระบบตอนนี้'}
+              </p>
               {user && (
                 <a href="/products/new" className="mt-3 inline-block text-sm font-medium text-primary hover:text-primary-dark">
                   เป็นคนแรกที่ลงขายสินค้า →
