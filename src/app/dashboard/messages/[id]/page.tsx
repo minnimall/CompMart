@@ -77,8 +77,8 @@ export default async function ConversationPage({
                     <a href="/dashboard/messages" className="text-sm text-text-muted hover:text-primary">
                         ← ข้อความทั้งหมด
                     </a>
-                    <h1 className="mt-2 text-xl font-semibold text-text">{otherParty?.username}</h1>
-                    <p className="text-sm text-primary">{product?.title}</p>
+                    <h1 className="mt-2 text-xl font-semibold text-text">ผู้ขาย:{otherParty?.username}</h1>
+                    <p className="text-sm text-primary">รายการสินค้า: {product?.title}</p>
 
                     <div className="mt-4">
                         <MessageThread

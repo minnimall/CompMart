@@ -13,10 +13,15 @@ interface Sender {
 interface Message {
     id: string
     sender_id: string
-    content: string
+    content: string | null
+    image_url?: string | null
     created_at: string
     sender?: Sender | null
+    
 }
+
+const GROUP_GAP_MS = 5 * 60 * 1000      // ระยะห่างที่ตัดกลุ่ม bubble (avatar ใหม่)
+const DIVIDER_GAP_MS = 30 * 60 * 1000   // ระยะห่างที่โชว์ป้ายเวลาคั่นกลาง
 
 export function MessageThread({
     conversationId,
@@ -37,9 +42,14 @@ export function MessageThread({
 
     const [isConfirmOpen, setIsConfirmOpen] = useState(false)
     const [messageToDeleteId, setMessageToDeleteId] = useState<string | null>(null)
-    
+
     const bottomRef = useRef<HTMLDivElement>(null)
     const subscriptionRef = useRef<any>(null)
+
+    const [selectedFile, setSelectedFile] = useState<File | null>(null)
+    const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+    const [isUploading, setIsUploading] = useState(false)
+    const fileInputRef = useRef<HTMLInputElement>(null)
 
     useEffect(() => {
         markConversationRead(conversationId)
@@ -54,7 +64,7 @@ export function MessageThread({
 
         const channel = supabase
             .channel(`messages:${conversationId}`, {
-                config: { broadcast: { self: true } }
+                config: { broadcast: { self: true } },
             })
             .on(
                 'postgres_changes',
@@ -95,23 +105,102 @@ export function MessageThread({
         return () => clearTimeout(timer)
     }, [messages])
 
-    const handleSend = useCallback(() => {
-        const content = input.trim()
-        if (!content || isPending) return
-        setInput('')
-        startTransition(() => {
-            sendMessage(conversationId, content).catch(err => {
-                console.error('Error sending message:', err)
-            })
-        })
-    }, [conversationId, input, isPending])
+    const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0]
+        if (!file) return
 
-    const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault()
-            handleSend()
+        if (!file.type.startsWith('image/')) {
+            alert('เลือกได้เฉพาะไฟล์รูปภาพ')
+            return
         }
-    }, [handleSend])
+        if (file.size > 5 * 1024 * 1024) {
+            alert('ไฟล์ต้องมีขนาดไม่เกิน 5MB')
+            return
+        }
+
+        setSelectedFile(file)
+        setPreviewUrl(URL.createObjectURL(file))
+    }
+
+    const cancelImageSelection = () => {
+        setSelectedFile(null)
+        if (previewUrl) URL.revokeObjectURL(previewUrl)
+        setPreviewUrl(null)
+        if (fileInputRef.current) fileInputRef.current.value = ''
+    }
+
+    const handleSend = useCallback(async () => {
+        const content = input.trim()
+        if (!content && !selectedFile) return
+        if (isPending || isUploading) return
+
+        let imageUrl: string | null = null
+
+        if (selectedFile) {
+            setIsUploading(true)
+            try {
+                const supabase = createClient()
+                const ext = selectedFile.name.split('.').pop()
+                const path = `${conversationId}/${currentUserId}-${Date.now()}.${ext}`
+
+                const { error: uploadError } = await supabase.storage
+                    .from('chat-images')
+                    .upload(path, selectedFile)
+
+                if (uploadError) throw uploadError
+
+                const { data: publicUrlData } = supabase.storage
+                    .from('chat-images')
+                    .getPublicUrl(path)
+
+                imageUrl = publicUrlData.publicUrl
+            } catch (err) {
+                console.error('Error uploading image:', err)
+                alert('อัปโหลดรูปไม่สำเร็จ')
+                setIsUploading(false)
+                return
+            }
+            setIsUploading(false)
+        }
+
+        setInput('')
+        cancelImageSelection()
+
+        const tempId = `temp-${Date.now()}`
+        const optimisticMessage: Message = {
+            id: tempId,
+            sender_id: currentUserId,
+            content: content || null,
+            image_url: imageUrl,
+            created_at: new Date().toISOString(),
+        }
+        setMessages((prev) => [...prev, optimisticMessage])
+
+        startTransition(() => {
+            sendMessage(conversationId, content, imageUrl)
+                .then((saved) => {
+                    setMessages((prev) =>
+                        prev.map((m) =>
+                            m.id === tempId ? { ...m, id: saved.id, created_at: saved.created_at } : m
+                        )
+                    )
+                })
+                .catch((err) => {
+                    console.error('Error sending message:', err)
+                    setMessages((prev) => prev.filter((m) => m.id !== tempId))
+                })
+        })
+    }, [conversationId, input, isPending, isUploading, currentUserId, selectedFile])
+
+    const handleKeyDown = useCallback(
+        (e: React.KeyboardEvent<HTMLInputElement>) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault()
+                handleSend()
+            }
+        },
+        [handleSend]
+    )
 
     const handleDeleteClick = useCallback((messageId: string) => {
         setMessageToDeleteId(messageId)
@@ -123,7 +212,7 @@ export function MessageThread({
 
         setDeletingMessageId(messageToDeleteId)
         setIsConfirmOpen(false)
-        
+
         try {
             await deleteMessage(messageToDeleteId)
             setMessages((prev) => prev.filter((m) => m.id !== messageToDeleteId))
@@ -145,10 +234,10 @@ export function MessageThread({
     const shouldShowAvatar = (currentIndex: number): boolean => {
         const currentMsg = messages[currentIndex]
         const nextMsg = messages[currentIndex + 1]
-        
+
         if (!nextMsg) return true
         if (nextMsg.sender_id !== currentMsg.sender_id) return true
-        if (new Date(nextMsg.created_at).getTime() - new Date(currentMsg.created_at).getTime() > 5 * 60 * 1000) return true
+        if (new Date(nextMsg.created_at).getTime() - new Date(currentMsg.created_at).getTime() > GROUP_GAP_MS) return true
         return false
     }
 
@@ -161,7 +250,7 @@ export function MessageThread({
     const messageGroups = messages.reduce((groups: MessageGroup[], msg: Message, index: number) => {
         const lastGroup = groups[groups.length - 1]
         const showAvatar = shouldShowAvatar(index)
-        
+
         if (!lastGroup || lastGroup.senderId !== msg.sender_id || showAvatar) {
             groups.push({
                 senderId: msg.sender_id,
@@ -194,6 +283,7 @@ export function MessageThread({
                                 {!isMine && (
                                     <div className="mt-1 h-8 w-8 shrink-0 overflow-hidden rounded-full bg-surface-2">
                                         {avatar && (
+                                            // eslint-disable-next-line @next/next/no-img-element
                                             <img
                                                 src={avatar}
                                                 alt={username || 'user'}
@@ -214,22 +304,30 @@ export function MessageThread({
                                         {group.messages.map((m: Message, msgIndex: number) => (
                                             <div key={m.id}>
                                                 {/* Show timestamp between message groups if time gap > 5 min */}
-                                                {msgIndex === 0 && groupIndex > 0 && (
-                                                    (() => {
-                                                        const prevGroup = messageGroups[groupIndex - 1]
-                                                        const prevMsg = prevGroup.messages[prevGroup.messages.length - 1]
-                                                        const timeDiff = new Date(m.created_at).getTime() - new Date(prevMsg.created_at).getTime()
-                                                        
-                                                        if (timeDiff > 5 * 60 * 1000) {
-                                                            return (
-                                                                <p className="py-2 text-center text-xs text-text-muted">
-                                                                    {formatMessageTime(m.created_at)}
-                                                                </p>
-                                                            )
-                                                        }
-                                                        return null
-                                                    })()
-                                                )}
+                                                {msgIndex === 0 && (() => {
+                                                    // หาข้อความก่อนหน้าจริงๆ ในไทม์ไลน์ (ไม่ใช่แค่ในกลุ่มก่อนหน้า)
+                                                    const flatIndex = messages.findIndex((msg) => msg.id === m.id)
+                                                    const prevMsg = flatIndex > 0 ? messages[flatIndex - 1] : null
+
+                                                    // ข้อความแรกสุดของแชท ให้โชว์เวลาเสมอ
+                                                    if (!prevMsg) {
+                                                        return (
+                                                            <p className="py-2 text-center text-xs text-text-muted">
+                                                                {formatMessageTime(m.created_at)}
+                                                            </p>
+                                                        )
+                                                    }
+
+                                                    const timeDiff = new Date(m.created_at).getTime() - new Date(prevMsg.created_at).getTime()
+                                                    if (timeDiff > DIVIDER_GAP_MS) {
+                                                        return (
+                                                            <p className="py-2 text-center text-xs text-text-muted">
+                                                                {formatMessageTime(m.created_at)}
+                                                            </p>
+                                                        )
+                                                    }
+                                                    return null
+                                                })()}
 
                                                 <div
                                                     className="group/msg relative flex items-center gap-2"
@@ -238,13 +336,21 @@ export function MessageThread({
                                                 >
                                                     <div
                                                         className={`group rounded-2xl px-4 py-2 text-sm transition ${
-                                                            isMine
-                                                                ? 'bg-primary text-white'
-                                                                : 'bg-surface-2 text-text'
+                                                            isMine ? 'bg-primary text-white' : 'bg-surface-2 text-text'
                                                         }`}
                                                     >
-                                                        {m.content}
-                                                        <span className={`ml-2 inline-block text-[11px] opacity-70 whitespace-nowrap`}>
+                                                        {m.image_url && (
+                                                            <a href={m.image_url} target="_blank" rel="noopener noreferrer">
+                                                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                                                <img
+                                                                    src={m.image_url}
+                                                                    alt="รูปภาพที่ส่ง"
+                                                                    className="mb-1 max-h-60 w-full max-w-[240px] rounded-xl object-cover"
+                                                                />
+                                                            </a>
+                                                        )}
+                                                        {m.content && <span>{m.content}</span>}
+                                                        <span className="ml-2 inline-block whitespace-nowrap text-[11px] opacity-70">
                                                             {new Date(m.created_at).getHours().toString().padStart(2, '0')}:
                                                             {new Date(m.created_at).getMinutes().toString().padStart(2, '0')}
                                                         </span>
@@ -279,6 +385,7 @@ export function MessageThread({
                                 {isMine && (
                                     <div className="mt-1 h-8 w-8 shrink-0 overflow-hidden rounded-full bg-surface-2">
                                         {currentUserAvatar && (
+                                            // eslint-disable-next-line @next/next/no-img-element
                                             <img
                                                 src={currentUserAvatar}
                                                 alt="you"
@@ -294,21 +401,61 @@ export function MessageThread({
                     <div ref={bottomRef} />
                 </div>
 
-                <div className="flex items-center gap-2 border-t border-border p-3">
-                    <input
-                        value={input}
-                        onChange={(e) => setInput(e.target.value)}
-                        onKeyDown={handleKeyDown}
-                        placeholder="พิมพ์ข้อความ..."
-                        className="flex-1 rounded-xl border border-border bg-surface-2 px-3 py-2 text-sm text-text outline-none transition focus:border-primary focus:ring-1 focus:ring-primary/20"
-                    />
-                    <button
-                        onClick={handleSend}
-                        disabled={!input.trim() || isPending}
-                        className="rounded-xl bg-primary px-4 py-2 text-sm font-medium text-white transition hover:bg-primary-dark disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                        {isPending ? 'ส่ง...' : 'ส่ง'}
-                    </button>
+                {/* Input bar */}
+                <div className="border-t border-border p-3">
+                    {previewUrl && (
+                        <div className="mb-2 flex items-center gap-2">
+                            <div className="relative h-16 w-16 overflow-hidden rounded-xl bg-surface-2">
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img src={previewUrl} alt="preview" className="h-full w-full object-cover" />
+                            </div>
+                            <button
+                                onClick={cancelImageSelection}
+                                className="text-xs font-medium text-red-500 hover:underline"
+                            >
+                                ลบรูป
+                            </button>
+                        </div>
+                    )}
+
+                    <div className="flex items-center gap-2">
+                        <input
+                            ref={fileInputRef}
+                            type="file"
+                            accept="image/*"
+                            onChange={handleFileSelect}
+                            className="hidden"
+                        />
+                        <button
+                            onClick={() => fileInputRef.current?.click()}
+                            disabled={isUploading}
+                            className="shrink-0 rounded-xl bg-surface-2 p-2.5 text-text-muted transition hover:text-primary disabled:opacity-50"
+                            title="แนบรูปภาพ"
+                        >
+                            <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14M14 8h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                                />
+                            </svg>
+                        </button>
+
+                        <input
+                            value={input}
+                            onChange={(e) => setInput(e.target.value)}
+                            onKeyDown={handleKeyDown}
+                            placeholder="พิมพ์ข้อความ..."
+                            className="flex-1 rounded-xl border border-border bg-surface-2 px-3 py-2 text-sm text-text outline-none transition focus:border-primary focus:ring-1 focus:ring-primary/20"
+                        />
+                        <button
+                            onClick={handleSend}
+                            disabled={(!input.trim() && !selectedFile) || isPending || isUploading}
+                            className="rounded-xl bg-primary px-4 py-2 text-sm font-medium text-white transition hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                            {isUploading ? 'กำลังอัปโหลด...' : isPending ? 'ส่ง...' : 'ส่ง'}
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -316,7 +463,7 @@ export function MessageThread({
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
                     <div className="w-full max-w-sm rounded-3xl bg-surface p-6 dark:shadow-[6px_6px_16px_rgba(0,0,0,0.5),-4px_-4px_10px_rgba(255,255,255,0.03)]">
                         <h3 className="text-lg font-semibold text-text">ลบข้อความ</h3>
-                        
+
                         <p className="mt-2 text-sm text-text-muted">
                             คุณต้องการลบข้อความนี้ใช่ไหม? การดำเนินการนี้ไม่สามารถเลิกทำได้
                         </p>
