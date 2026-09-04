@@ -44,6 +44,7 @@ export function UserMenu({ username, avatarUrl }: UserMenuProps) {
             <p className="px-3 py-2 text-sm font-medium text-text">สวัสดี, {username}</p>
             <div className="my-1 h-px bg-border" />
             <a href="/dashboard/settings" className="block rounded-xl px-3 py-2 text-sm text-text-muted transition hover:bg-surface-2 hover:text-text">โปรไฟล์ของฉัน</a>
+            <a href="/dashboard/favorites" className="block rounded-xl px-3 py-2 text-sm text-text-muted transition hover:bg-surface-2 hover:text-text">รายการโปรด</a>
             <a href="/dashboard/my-products" className="block rounded-xl px-3 py-2 text-sm text-text-muted transition hover:bg-surface-2 hover:text-text">สินค้าของฉัน</a>
             <a href="/dashboard/orders" className="block rounded-xl px-3 py-2 text-sm text-text-muted transition hover:bg-surface-2 hover:text-text">คำสั่งซื้อของฉัน</a>
             <a href="/dashboard/messages" className="block rounded-xl px-3 py-2 text-sm text-text-muted transition hover:bg-surface-2 hover:text-text">ข้อความ</a>

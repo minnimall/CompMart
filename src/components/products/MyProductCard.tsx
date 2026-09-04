@@ -54,29 +54,39 @@ export function MyProductCard({ product }: { product: Product }) {
 
         <div className="mt-3 flex items-center gap-2">
             <button
-            onClick={handleToggle}
-            disabled={isPending}
-            className={`flex-1 rounded-xl px-3 py-1.5 text-xs font-medium transition ${
-                product.status === 'active'
-                ? 'bg-secondary/10 text-secondary'
-                : 'bg-surface-2 text-text-muted'
-            }`}
+                onClick={handleToggle}
+                disabled={isPending}
+                className={`flex-1 cursor-pointer rounded-xl px-3 py-1.5 text-xs font-medium transition hover:brightness-95 ${
+                    product.status === 'active'
+                        ? 'bg-secondary/10 text-secondary'
+                        : 'bg-surface-2 text-text-muted'
+                }`}
             >
-            {product.status === 'active' ? 'กำลังขาย' : 'ปิดการขาย'}
+                {product.status === 'active' ? 'กำลังขาย' : 'ปิดการขาย'}
             </button>
+
             <button
-            onClick={() => setIsEditOpen(true)}
-            disabled={isPending}
-            className="rounded-xl bg-surface-2 px-3 py-1.5 text-xs font-medium text-primary transition hover:bg-primary/10"
+                onClick={() => setIsEditOpen(true)}
+                disabled={isPending}
+                title="แก้ไขสินค้า"
+                aria-label="แก้ไขสินค้า"
+                className="flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-xl bg-surface-2 text-primary transition hover:bg-primary/10"
             >
-            แก้ไข
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
             </button>
+
             <button
-            onClick={() => setIsDeleteOpen(true)}
-            disabled={isPending}
-            className="rounded-xl bg-red-50 px-3 py-1.5 text-xs font-medium text-red-500 transition hover:bg-red-100 dark:bg-red-500/10 dark:hover:bg-red-500/20"
+                onClick={() => setIsDeleteOpen(true)}
+                disabled={isPending}
+                title="ลบสินค้า"
+                aria-label="ลบสินค้า"
+                className="flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-xl bg-red-50 text-red-500 transition hover:bg-red-100 dark:bg-red-500/10 dark:hover:bg-red-500/20"
             >
-            ลบ
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
             </button>
         </div>
 

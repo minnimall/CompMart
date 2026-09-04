@@ -4,15 +4,18 @@ import { useState, useTransition } from 'react'
 import { confirmOrder, completeOrder, cancelOrder } from '@/lib/actions/orders'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { useToast } from '@/components/ui/toast/ToastProvider'
+import { ReviewModal } from '@/components/reviews/ReviewModal'
 
 export function OrderRowActions({
     orderId,
     status,
     role,
+    existingReview,
 }: {
     orderId: string
     status: string
     role: 'buyer' | 'seller'
+    existingReview?: { id: string; rating: number; comment: string | null; is_edited: boolean } | null
 }) {
     const [isPending, startTransition] = useTransition()
     const [confirmCancel, setConfirmCancel] = useState(false)
@@ -32,6 +35,8 @@ export function OrderRowActions({
     }
 
     const canCancel = status === 'pending' || status === 'confirmed'
+
+    const [isReviewOpen, setIsReviewOpen] = useState(false)
 
     return (
         <div className="mt-3 flex gap-2 border-t border-border pt-3">
@@ -61,6 +66,23 @@ export function OrderRowActions({
             >
             ยกเลิกออเดอร์
             </button>
+        )}
+
+        {role === 'buyer' && status === 'completed' && (
+        <button
+            onClick={() => setIsReviewOpen(true)}
+            className="flex-1 rounded-xl bg-amber-50 px-3 py-1.5 text-xs font-medium text-amber-600 transition hover:bg-amber-100 dark:bg-amber-500/10 dark:hover:bg-amber-500/20"
+        >
+            {existingReview ? (existingReview.is_edited ? 'ดูรีวิว' : 'แก้ไขรีวิว') : 'เขียนรีวิว'}
+        </button>
+        )}
+
+        {isReviewOpen && (
+        <ReviewModal
+            orderId={orderId}
+            existingReview={existingReview}
+            onClose={() => setIsReviewOpen(false)}
+        />
         )}
 
         {confirmCancel && (

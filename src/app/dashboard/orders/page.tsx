@@ -19,7 +19,8 @@ export default async function OrdersPage() {
         id, quantity, total_price, status, shipping_address, created_at,
         products(id, title, product_images(image_url, is_primary, sort_order)),
         buyer:profiles!buyer_id(username),
-        seller:profiles!seller_id(username)
+        seller:profiles!seller_id(username),
+        reviews(id, rating, comment, is_edited)
     `
 
     const [{ data: purchases }, { data: sales }] = await Promise.all([
@@ -36,6 +37,8 @@ export default async function OrdersPage() {
         const sorted = [...images].sort((a, b) => a.sort_order - b.sort_order)
         const primary = sorted.find((i) => i.is_primary) ?? sorted[0]
         const st = statusLabel[order.status] ?? statusLabel.pending
+
+        const review = Array.isArray(order.reviews) ? order.reviews[0] : order.reviews
 
         return (
         <div key={order.id} className="rounded-2xl bg-surface p-4 shadow-[6px_6px_14px_rgba(20,80,143,0.15),-6px_-6px_14px_rgba(255,255,255,0.9)] dark:shadow-[6px_6px_16px_rgba(0,0,0,0.5),-4px_-4px_10px_rgba(255,255,255,0.03)]">
@@ -61,7 +64,12 @@ export default async function OrdersPage() {
             </div>
             </div>
 
-            <OrderRowActions orderId={order.id} status={order.status} role={role} />
+            <OrderRowActions 
+                orderId={order.id} 
+                status={order.status} 
+                role={role} 
+                existingReview={review ?? null} 
+                />
         </div>
         )
     }

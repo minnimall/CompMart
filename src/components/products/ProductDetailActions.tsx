@@ -8,6 +8,7 @@ import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { OrderModal } from '@/components/orders/OrderModal'
 import { useToast } from '@/components/ui/toast/ToastProvider'
 import { getOrCreateConversation } from '@/lib/actions/conversations'
+import { FavoriteButton } from './FavoriteButton'
 
 export function ProductDetailActions({
     productId,
@@ -18,6 +19,7 @@ export function ProductDetailActions({
     sellerId,
     isOwner,
     isLoggedIn,
+    isFavorited,
 }: {
     productId: string
     productTitle: string
@@ -27,6 +29,7 @@ export function ProductDetailActions({
     sellerId: string
     isOwner: boolean
     isLoggedIn: boolean
+    isFavorited: boolean
 }) {
     const router = useRouter()
     const [isPending, startTransition] = useTransition()
@@ -69,20 +72,20 @@ export function ProductDetailActions({
             <button
             onClick={handleToggle}
             disabled={isPending}
-            className="flex-1 rounded-xl bg-surface-2 px-4 py-2.5 text-sm font-medium text-text transition disabled:opacity-60"
+            className="flex-1 cursor-pointer rounded-xl bg-surface-2 px-4 py-2.5 text-sm font-medium text-text transition disabled:opacity-60"
             >
             {productStatus === 'active' ? 'ปิดการขาย' : 'เปิดขายอีกครั้ง'}
             </button>
             <button
             onClick={() => setIsEditOpen(true)}
-            className="flex-1 rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-white transition hover:bg-primary-dark"
+            className="flex-1 cursor-pointer rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-white transition hover:bg-primary-dark"
             >
             แก้ไขสินค้า
             </button>
             <button
             onClick={() => setIsDeleteOpen(true)}
             disabled={isPending}
-            className="rounded-xl bg-red-50 px-4 py-2.5 text-sm font-medium text-red-500 transition hover:bg-red-100 disabled:opacity-60 dark:bg-red-500/10 dark:hover:bg-red-500/20"
+            className="rounded-xl cursor-pointer bg-red-50 px-4 py-2.5 text-sm font-medium text-red-500 transition hover:bg-red-100 disabled:opacity-60 dark:bg-red-500/10 dark:hover:bg-red-500/20"
             >
             ลบ
             </button>
@@ -119,31 +122,33 @@ export function ProductDetailActions({
 
     return (
         <div className="flex gap-3">
-        <button
-            onClick={handleContactSeller}
-            disabled={isPending}
-            className="flex-1 rounded-xl bg-surface-2 px-4 py-2.5 text-sm font-medium text-text transition disabled:opacity-60"
+            <button
+                onClick={handleContactSeller}
+                disabled={isPending}
+                className="flex-1 rounded-xl bg-surface-2 px-4 py-2.5 text-sm font-medium text-text transition disabled:opacity-60"
+                >
+                ติดต่อผู้ขาย
+            </button>
+
+            <button 
+                onClick={() => setIsOrderOpen(true)} 
+                disabled={productStatus !== 'active' || stock < 1} 
+                className="flex-1 cursor-pointer rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-white transition hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-50"
             >
-            ติดต่อผู้ขาย
-        </button>
+                {stock < 1 ? 'สินค้าหมด' : 'สั่งซื้อ'}
+            </button>
 
-        <button 
-            onClick={() => setIsOrderOpen(true)} 
-            disabled={productStatus !== 'active' || stock < 1} 
-            className="flex-1 cursor-pointer rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-white transition hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-50"
-        >
-            {stock < 1 ? 'สินค้าหมด' : 'สั่งซื้อ'}
-        </button>
+            <FavoriteButton productId={productId} initialFavorited={isFavorited} />
 
-        {isOrderOpen && (
-            <OrderModal
-            productId={productId}
-            productTitle={productTitle}
-            price={price}
-            stock={stock}
-            onClose={() => setIsOrderOpen(false)}
-            />
-        )}
+            {isOrderOpen && (
+                <OrderModal
+                productId={productId}
+                productTitle={productTitle}
+                price={price}
+                stock={stock}
+                onClose={() => setIsOrderOpen(false)}
+                />
+            )}
         </div>
     )
 }

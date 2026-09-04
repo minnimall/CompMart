@@ -18,6 +18,8 @@ interface FullProduct {
     product_images: ProductImage[]
 }
 
+const MAX_IMAGES = 6
+
 export function EditProductModal({
     productId,
     onClose,
@@ -30,6 +32,8 @@ export function EditProductModal({
     const [product, setProduct] = useState<FullProduct | null>(null)
     const [categories, setCategories] = useState<Category[]>([])
     const [images, setImages] = useState<string[]>([])
+    const [isUploadingImage, setIsUploadingImage] = useState(false)
+    const [imageError, setImageError] = useState<string | null>(null)
 
     useEffect(() => {
         const supabase = createClient()
@@ -54,6 +58,66 @@ export function EditProductModal({
         load()
     }, [productId])
 
+    const handleAddImages = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const files = Array.from(e.target.files ?? [])
+        if (files.length === 0) return
+        e.target.value = '' // เคลียร์ input กันเลือกไฟล์เดิมซ้ำไม่ trigger onChange
+
+        setImageError(null)
+
+        const remainingSlots = MAX_IMAGES - images.length
+        if (remainingSlots <= 0) {
+        setImageError(`เพิ่มรูปได้สูงสุด ${MAX_IMAGES} รูป`)
+        return
+        }
+
+        const filesToUpload = files.slice(0, remainingSlots)
+        const invalidFile = filesToUpload.find((f) => !f.type.startsWith('image/'))
+        if (invalidFile) {
+        setImageError('เลือกได้เฉพาะไฟล์รูปภาพ')
+        return
+        }
+        const tooLargeFile = filesToUpload.find((f) => f.size > 5 * 1024 * 1024)
+        if (tooLargeFile) {
+        setImageError('แต่ละไฟล์ต้องมีขนาดไม่เกิน 5MB')
+        return
+        }
+
+        setIsUploadingImage(true)
+        try {
+        const supabase = createClient()
+        const uploadedUrls: string[] = []
+
+        for (const file of filesToUpload) {
+            const ext = file.name.split('.').pop()
+            const path = `${productId}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
+
+            const { error: uploadError } = await supabase.storage
+            .from('product-images')
+            .upload(path, file)
+
+            if (uploadError) throw uploadError
+
+            const { data: publicUrlData } = supabase.storage
+            .from('product-images')
+            .getPublicUrl(path)
+
+            uploadedUrls.push(publicUrlData.publicUrl)
+        }
+
+        setImages((prev) => [...prev, ...uploadedUrls])
+        } catch (err) {
+        console.error('Error uploading image:', err)
+        setImageError('อัปโหลดรูปไม่สำเร็จ ลองใหม่อีกครั้ง')
+        } finally {
+        setIsUploadingImage(false)
+        }
+    }
+
+    const handleRemoveImage = (urlToRemove: string) => {
+        setImages((prev) => prev.filter((url) => url !== urlToRemove))
+    }
+
     const handleSubmit = (formData: FormData) => {
         formData.set('images', JSON.stringify(images))
         startTransition(() => updateProduct(productId, formData))
@@ -61,7 +125,7 @@ export function EditProductModal({
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 backdrop-blur-sm">
-        <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-surface p-6 dark:shadow-[10px_10px_28px_rgba(0,0,0,0.6),-6px_-6px_16px_rgba(255,255,255,0.03)]">
+        <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-surface p-6 shadow-[10px_10px_24px_rgba(20,80,143,0.25),-8px_-8px_20px_rgba(255,255,255,0.6)] dark:shadow-[10px_10px_28px_rgba(0,0,0,0.6),-6px_-6px_16px_rgba(255,255,255,0.03)]">
             <div className="mb-4 flex items-center justify-between">
             <h2 className="text-lg font-semibold text-text">แก้ไขสินค้า</h2>
             <button onClick={onClose} className="text-text-muted hover:text-text" aria-label="ปิด">✕</button>
@@ -153,17 +217,57 @@ export function EditProductModal({
                 </select>
                 </div>
 
-                {images.length > 0 && (
+                {/* ส่วนจัดการรูปภาพ */}
                 <div>
-                    <label className="text-xs font-medium text-text-muted">รูปสินค้าปัจจุบัน</label>
-                    <div className="mt-1 flex gap-2 overflow-x-auto">
-                    {images.map((url) => (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img key={url} src={url} alt="" className="h-16 w-16 shrink-0 rounded-lg object-cover" />
+                <div className="flex items-center justify-between">
+                    <label className="text-xs font-medium text-text-muted">
+                    รูปสินค้า ({images.length}/{MAX_IMAGES})
+                    </label>
+                    {images.length < MAX_IMAGES && (
+                    <label className="cursor-pointer text-xs font-medium text-primary hover:underline">
+                        {isUploadingImage ? 'กำลังอัปโหลด...' : '+ เพิ่มรูป'}
+                        <input
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        onChange={handleAddImages}
+                        disabled={isUploadingImage}
+                        className="hidden"
+                        />
+                    </label>
+                    )}
+                </div>
+
+                {imageError && (
+                    <p className="mt-1 text-xs text-red-500">{imageError}</p>
+                )}
+
+                {images.length > 0 ? (
+                    <div className="mt-2 flex flex-wrap gap-2">
+                    {images.map((url, index) => (
+                        <div key={url} className="group relative h-20 w-20 shrink-0 overflow-hidden rounded-lg">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={url} alt="" className="h-full w-full object-cover" />
+                        {index === 0 && (
+                            <span className="absolute bottom-0 left-0 right-0 bg-black/50 py-0.5 text-center text-[10px] text-white">
+                            รูปหลัก
+                            </span>
+                        )}
+                        <button
+                            type="button"
+                            onClick={() => handleRemoveImage(url)}
+                            className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-black/60 text-xs text-white opacity-0 transition group-hover:opacity-100"
+                            aria-label="ลบรูปนี้"
+                        >
+                            ✕
+                        </button>
+                        </div>
                     ))}
                     </div>
-                </div>
+                ) : (
+                    <p className="mt-2 text-xs text-text-muted">ยังไม่มีรูปสินค้า</p>
                 )}
+                </div>
 
                 <div className="flex gap-3 pt-2">
                 <button
@@ -175,7 +279,7 @@ export function EditProductModal({
                 </button>
                 <button
                     type="submit"
-                    disabled={isPending}
+                    disabled={isPending || isUploadingImage}
                     className="flex-1 rounded-xl bg-primary px-4 py-2 text-sm font-medium text-white transition hover:bg-primary-dark disabled:opacity-60"
                 >
                     {isPending ? 'กำลังบันทึก...' : 'บันทึกการแก้ไข'}

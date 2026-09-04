@@ -41,7 +41,7 @@ export async function sendMessage(conversationId: string, content: string, image
 
     const { data: conversation, error: convError } = await supabase
         .from('conversations')
-        .select('id')
+        .select('id, buyer_id, seller_id')
         .eq('id', conversationId)
         .or(`buyer_id.eq.${user.id},seller_id.eq.${user.id}`)
         .single()
@@ -57,6 +57,8 @@ export async function sendMessage(conversationId: string, content: string, image
             sender_id: user.id,
             content: content.trim() || null,
             image_url: imageUrl || null,
+            buyer_id: conversation.buyer_id,
+            seller_id: conversation.seller_id,
         })
         .select('id, sender_id, content, image_url, created_at')
         .single()
