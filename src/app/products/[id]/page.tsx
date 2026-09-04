@@ -109,11 +109,14 @@ export default async function ProductDetailPage({
 
                 <div className="mt-5 border-t border-border pt-5">
                     <ProductDetailActions
-                    productId={product.id}
-                    productTitle={product.title}
-                    productStatus={product.status}
-                    isOwner={isOwner}
-                    isLoggedIn={!!user}
+                        productId={product.id}
+                        productTitle={product.title}
+                        productStatus={product.status}
+                        price={Number(product.price)}
+                        stock={product.stock}
+                        sellerId={product.seller_id}
+                        isOwner={isOwner}
+                        isLoggedIn={!!user}
                     />
                 </div>
                 </div>
