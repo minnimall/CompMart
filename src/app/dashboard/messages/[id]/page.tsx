@@ -7,6 +7,7 @@ interface Message {
     id: string
     sender_id: string
     content: string
+    image_url?: string | null
     created_at: string
     sender?: {
         username: string
@@ -46,6 +47,7 @@ export default async function ConversationPage({
         id, 
         sender_id, 
         content, 
+        image_url,
         created_at,
         sender:profiles!sender_id(username, avatar_url)
         `)
