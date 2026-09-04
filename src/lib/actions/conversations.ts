@@ -26,7 +26,10 @@ export async function getOrCreateConversation(productId: string, sellerId: strin
         .select('id')
         .single()
 
-    if (error || !created) throw new Error('เริ่มการสนทนาไม่สำเร็จ')
+    if (error || !created) {
+        console.error('Error creating conversation:', error)
+        throw new Error('เริ่มการสนทนาไม่สำเร็จ')
+    }
     return created.id
 }
 
@@ -34,16 +37,34 @@ export async function sendMessage(conversationId: string, content: string) {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) redirect('/login')
-    if (!content.trim()) return
+    if (!content.trim()) throw new Error('ข้อความว่างเปล่า')
 
+    // ✅ ตรวจสอบว่า user เป็นส่วนหนึ่งของการสนทนา
+    const { data: conversation, error: convError } = await supabase
+        .from('conversations')
+        .select('id')
+        .eq('id', conversationId)
+        .or(`buyer_id.eq.${user.id},seller_id.eq.${user.id}`)
+        .single()
+
+    if (convError || !conversation) {
+        throw new Error('ไม่พบการสนทนา')
+    }
+
+    // ✅ Insert message
     const { error } = await supabase.from('messages').insert({
         conversation_id: conversationId,
         sender_id: user.id,
         content: content.trim(),
+        created_at: new Date().toISOString(),
     })
 
-    if (error) throw new Error('ส่งข้อความไม่สำเร็จ')
+    if (error) {
+        console.error('Error sending message:', error)
+        throw new Error('ส่งข้อความไม่สำเร็จ')
+    }
 
+    revalidatePath(`/dashboard/messages/${conversationId}`)
     revalidatePath('/dashboard/messages')
 }
 
@@ -52,10 +73,35 @@ export async function markConversationRead(conversationId: string) {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return
 
-    await supabase
+    // ✅ อัปเดตเฉพาะข้อความของคนอื่นที่ยังไม่ได้อ่าน
+    const { error } = await supabase
         .from('messages')
         .update({ is_read: true })
         .eq('conversation_id', conversationId)
         .neq('sender_id', user.id)
         .eq('is_read', false)
+
+    if (!error) {
+        revalidatePath('/dashboard/messages')
+    }
+}
+
+// ✅ ฟังก์ชัน helper สำหรับลบข้อความ (optional)
+export async function deleteMessage(messageId: string) {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) redirect('/login')
+
+    const { data: message } = await supabase
+        .from('messages')
+        .select('id, sender_id')
+        .eq('id', messageId)
+        .single()
+
+    if (!message || message.sender_id !== user.id) {
+        throw new Error('ไม่มีสิทธิ์ลบข้อความนี้')
+    }
+
+    await supabase.from('messages').delete().eq('id', messageId)
+    revalidatePath('/dashboard/messages')
 }
