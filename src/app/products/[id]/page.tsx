@@ -4,6 +4,7 @@ import { Navbar } from '@/components/layout/Navbar'
 import { ProductGallery } from '@/components/products/ProductGallery'
 import { ProductDetailActions } from '@/components/products/ProductDetailActions'
 import { ReviewList } from '@/components/reviews/ReviewList'
+import { FavoriteButton } from '@/components/products/FavoriteButton'
 
 const conditionLabel: Record<string, string> = {
     new: 'ใหม่',
@@ -75,9 +76,19 @@ export default async function ProductDetailPage({
                     <ProductGallery images={images} title={product.title} />
 
                     <div className="rounded-2xl bg-surface p-6 shadow-[6px_6px_14px_rgba(20,80,143,0.15),-6px_-6px_14px_rgba(255,255,255,0.9)] dark:shadow-[6px_6px_16px_rgba(0,0,0,0.5),-4px_-4px_10px_rgba(255,255,255,0.03)]">
-                        {category && (
-                            <span className="text-xs font-medium text-primary">{category.name}</span>
-                        )}
+                        <div className="flex items-center justify-between">
+                            {category ? (
+                                <span className="text-xs font-medium text-primary">{category.name}</span>
+                            ) : (
+                                <span />
+                            )}
+                            <FavoriteButton
+                                productId={product.id}
+                                initialFavorited={isFavorited}
+                                variant="icon"
+                                isLoggedIn={!!user}
+                            />
+                        </div>
 
                         <p className="mt-3 text-xs font-medium text-text-muted">ชื่อสินค้า</p>
                         <div className="mt-1 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">

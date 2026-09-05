@@ -1,21 +1,35 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import { useRouter } from 'next/navigation'
 import { toggleFavorite } from '@/lib/actions/favorites'
 import { useToast } from '@/components/ui/toast/ToastProvider'
 
 export function FavoriteButton({
     productId,
     initialFavorited,
+    variant = 'button',
+    isLoggedIn = true,
 }: {
     productId: string
     initialFavorited: boolean
+    variant?: 'button' | 'icon'
+    isLoggedIn?: boolean
 }) {
+    const router = useRouter()
     const [isFavorited, setIsFavorited] = useState(initialFavorited)
     const [isPending, startTransition] = useTransition()
     const { error } = useToast()
 
-    const handleClick = () => {
+    const handleClick = (e: React.MouseEvent) => {
+        e.preventDefault()
+        e.stopPropagation()
+
+        if (!isLoggedIn) {
+            router.push('/login')
+            return
+        }
+
         const next = !isFavorited
         setIsFavorited(next) // optimistic
 
@@ -28,6 +42,33 @@ export function FavoriteButton({
                 error('ดำเนินการไม่สำเร็จ ลองใหม่อีกครั้ง')
             }
         })
+    }
+
+    if (variant === 'icon') {
+        return (
+            <button
+                onClick={handleClick}
+                disabled={isPending}
+                aria-label={isFavorited ? 'เอาออกจากรายการโปรด' : 'เพิ่มในรายการโปรด'}
+                className={`flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-full transition disabled:opacity-60 ${
+                    isFavorited ? 'text-red-500' : 'text-text-muted hover:text-red-500'
+                }`}
+            >
+                <svg
+                    className="h-5 w-5"
+                    fill={isFavorited ? 'currentColor' : 'none'}
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    viewBox="0 0 24 24"
+                >
+                    <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M4.318 6.318a4.5 4.5 0 016.364 0L12 7.636l1.318-1.318a4.5 4.5 0 116.364 6.364L12 21l-7.682-7.682a4.5 4.5 0 010-6.364z"
+                    />
+                </svg>
+            </button>
+        )
     }
 
     return (

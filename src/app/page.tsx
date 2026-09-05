@@ -1,13 +1,14 @@
 import { createClient } from '@/lib/supabase/server'
 import { Navbar } from '@/components/layout/Navbar'
 import { getCategoryIcon } from '@/lib/categoryIcons'
+import { FavoriteButton } from '@/components/products/FavoriteButton'
 
 export default async function Home({
   searchParams,
 }: {
-  searchParams: Promise<{ category?: string }>
+  searchParams: Promise<{ category?: string; search?: string }>
 }) {
-  const { category: selectedSlug } = await searchParams
+  const { category: selectedSlug, search: searchQuery } = await searchParams
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   const { data: categories } = await supabase.from('categories').select('*')
@@ -22,12 +23,26 @@ export default async function Home({
     .order('created_at', { ascending: false })
 
   if (activeCategory) {
-    productsQuery = productsQuery.eq('category_id', activeCategory.id)
-  } else {
-    productsQuery = productsQuery.limit(12)
+      productsQuery = productsQuery.eq('category_id', activeCategory.id)
+  }
+  if (searchQuery?.trim()) {
+      const term = searchQuery.trim().replace(/[%_]/g, '\\$&') // กัน % หรือ _ ทำให้ pattern เพี้ยน
+      productsQuery = productsQuery.or(`title.ilike.%${term}%,brand.ilike.%${term}%`)
+  }
+  if (!activeCategory && !searchQuery?.trim()) {
+      productsQuery = productsQuery.limit(12)
   }
 
   const { data: products } = await productsQuery
+
+  let favoritedIds = new Set<string>()
+  if (user) {
+      const { data: favs } = await supabase
+          .from('favorites')
+          .select('product_id')
+          .eq('user_id', user.id)
+      favoritedIds = new Set((favs ?? []).map((f) => f.product_id))
+  }
 
   let username = ''
   if (user) {
@@ -113,7 +128,11 @@ export default async function Home({
         <section className="mt-10">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold text-text">
-              {activeCategory ? `สินค้าในหมวด ${activeCategory.name}` : 'สินค้าล่าสุด'}
+                {searchQuery?.trim()
+                    ? `ผลการค้นหา "${searchQuery.trim()}"`
+                    : activeCategory
+                        ? `สินค้าในหมวด ${activeCategory.name}`
+                        : 'สินค้าล่าสุด'}
             </h2>
             {products && products.length > 0 && (
               <span className="text-sm text-text-muted">{products.length} รายการ</span>
@@ -134,14 +153,22 @@ export default async function Home({
                       href={`/products/${p.id}`}
                       className="block rounded-2xl bg-surface p-4 shadow-[6px_6px_14px_rgba(20,80,143,0.15),-6px_-6px_14px_rgba(255,255,255,0.9)] dark:shadow-[6px_6px_16px_rgba(0,0,0,0.5),-4px_-4px_10px_rgba(255,255,255,0.03)] transition hover:-translate-y-0.5"
                     >
-                      <div className="mb-3 flex h-28 items-center justify-center overflow-hidden rounded-xl bg-surface-2 text-primary/60">
+                      <div className="relative mb-3 flex h-28 items-center justify-center overflow-hidden rounded-xl bg-surface-2 text-primary/60">
                         {primary ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img src={primary.image_url} alt={p.title} className="h-full w-full object-cover" />
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={primary.image_url} alt={p.title} className="h-full w-full object-cover" />
                         ) : (
-                          category ? getCategoryIcon(category.slug) : null
+                            category ? getCategoryIcon(category.slug) : null
                         )}
-                      </div>
+                        <div className="absolute right-1.5 top-1.5 rounded-full bg-white/80 backdrop-blur-sm dark:bg-black/40">
+                            <FavoriteButton
+                                productId={p.id}
+                                initialFavorited={favoritedIds.has(p.id)}
+                                variant="icon"
+                                isLoggedIn={!!user}
+                            />
+                        </div>
+                    </div>
 
                       {category && (
                         <span className="text-xs font-medium text-primary">{category.name}</span>
@@ -171,7 +198,11 @@ export default async function Home({
                 </svg>
               </div>
               <p className="text-text-muted">
-                {activeCategory ? 'ยังไม่มีสินค้าในหมวดหมู่นี้' : 'ยังไม่มีสินค้าในระบบตอนนี้'}
+                  {searchQuery?.trim()
+                      ? `ไม่พบสินค้าที่ตรงกับ "${searchQuery.trim()}"`
+                      : activeCategory
+                          ? 'ยังไม่มีสินค้าในหมวดหมู่นี้'
+                          : 'ยังไม่มีสินค้าในระบบตอนนี้'}
               </p>
               {user && (
                 <a href="/products/new" className="mt-3 inline-block text-sm font-medium text-primary hover:text-primary-dark">

@@ -49,10 +49,15 @@ export default async function MyProductsPage({
                 </div>
             ) : (
                 <div className="mt-6 rounded-2xl bg-surface p-10 text-center shadow-[inset_3px_3px_10px_rgba(20,80,143,0.1),inset_-3px_-3px_10px_rgba(255,255,255,0.8)] dark:shadow-[inset_3px_3px_10px_rgba(0,0,0,0.4),inset_-2px_-2px_8px_rgba(255,255,255,0.02)]">
-                <p className="text-text-muted">คุณยังไม่เคยลงขายสินค้าเลย</p>
-                <a href="/products/new" className="mt-3 inline-block text-sm font-medium text-primary hover:text-primary-dark">
-                    เริ่มลงขายสินค้าชิ้นแรก →
-                </a>
+                    <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-surface-2 text-text-muted shadow-[inset_3px_3px_8px_rgba(20,80,143,0.12),inset_-3px_-3px_8px_rgba(255,255,255,0.8)] dark:shadow-[inset_3px_3px_8px_rgba(0,0,0,0.45),inset_-2px_-2px_6px_rgba(255,255,255,0.02)]">
+                        <svg className="h-7 w-7" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                        </svg>
+                    </div>
+                    <p className="text-text-muted">คุณยังไม่เคยลงขายสินค้าเลย</p>
+                    <a href="/products/new" className="mt-3 inline-block text-sm font-medium text-primary hover:text-primary-dark">
+                        เริ่มลงขายสินค้าชิ้นแรก →
+                    </a>
                 </div>
             )}
             </div>

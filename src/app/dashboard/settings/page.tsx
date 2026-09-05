@@ -9,72 +9,201 @@ import { AvatarUpload } from '@/components/profile/AvatarUpload'
 export default async function SettingsPage() {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
+
     if (!user) redirect('/login')
 
     const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single()
 
+    const username = profile?.username || 'ผู้ใช้งาน'
+    const email = user.email || 'ไม่พบอีเมล'
+    const fallbackChar = (profile?.username ?? user.email ?? '?').charAt(0).toUpperCase()
+
     return (
         <>
-        <Navbar />
+            <Navbar />
 
-        <div className="min-h-screen bg-gradient-to-b from-bg to-bg/80 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
-            <div className="mx-auto max-w-4xl">
-            {/* Header Section */}
-            <div className="mb-6 sm:mb-8">
-                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-                การตั้งค่า
-                </h1>
-                <p className="mt-1 sm:mt-2 text-sm sm:text-base text-text-muted">จัดการโปรไฟล์และการตั้งค่าบัญชีของคุณ</p>
-            </div>
+            <main className="min-h-screen bg-gradient-to-b from-bg via-bg to-bg/80 px-4 py-7 sm:px-6 sm:py-8 lg:px-8">
+                <div className="mx-auto w-full max-w-6xl">
 
-            {/* Profile Card */}
-            <div className="mb-6 sm:mb-8 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-surface to-surface/95 p-5 sm:p-6 lg:p-8 shadow-[12px_12px_28px_rgba(20,80,143,0.15),-8px_-8px_24px_rgba(255,255,255,0.9)] dark:shadow-[12px_12px_28px_rgba(0,0,0,0.5),-6px_-6px_18px_rgba(255,255,255,0.03)] border border-white/50 dark:border-white/10">
-                <div className="flex flex-col sm:flex-row items-center sm:items-center gap-4 sm:gap-6 mb-6 sm:mb-8 pb-6 sm:pb-8 border-b border-border text-center sm:text-left">
-                <AvatarUpload
-                    userId={user.id}
-                    currentAvatarUrl={profile?.avatar_url}
-                    fallbackChar={(profile?.username ?? user.email ?? '?').charAt(0).toUpperCase()}
-                />
+                    {/* Header */}
+                    <header className="mb-7">
+                        <div className="flex items-center gap-3">
+                            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary shadow-[3px_3px_8px_rgba(20,80,143,0.10),-2px_-2px_6px_rgba(255,255,255,0.8)] dark:shadow-[3px_3px_8px_rgba(0,0,0,0.35),-2px_-2px_5px_rgba(255,255,255,0.03)]">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                                    <path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z" />
+                                    <path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-1.42 1.42-.06-.06a1.7 1.7 0 0 0-1.88-.34 1.7 1.7 0 0 0-1.03 1.56V21h-2v-.48a1.7 1.7 0 0 0-1.03-1.56 1.7 1.7 0 0 0-1.88.34l-.06.06-1.42-1.42.06-.06A1.7 1.7 0 0 0 9.4 15a1.7 1.7 0 0 0-1.56-1.03H7v-2h.84A1.7 1.7 0 0 0 9.4 10a1.7 1.7 0 0 0-.34-1.88L9 8.06l1.42-1.42.06.06a1.7 1.7 0 0 0 1.88.34A1.7 1.7 0 0 0 13.4 5.48V5h2v.48a1.7 1.7 0 0 0 1.03 1.56 1.7 1.7 0 0 0 1.88-.34l.06-.06 1.42 1.42-.06.06A1.7 1.7 0 0 0 19.4 10a1.7 1.7 0 0 0 1.56 1.03H21v2h-.04A1.7 1.7 0 0 0 19.4 15Z" />
+                                </svg>
+                            </div>
 
-                <div className="flex-1 min-w-0 w-full sm:w-auto">
-                    <h2 className="text-xl sm:text-2xl font-bold text-text truncate">{profile?.username || 'ผู้ใช้งาน'}</h2>
-                    <p className="text-sm sm:text-base text-text-muted truncate">{user.email}</p>
-                    <p className="mt-1 sm:mt-2 text-xs text-text-muted/70">ID: {user.id.slice(0, 8)}...</p>
+                            <div className="min-w-0">
+                                <h1 className="text-2xl font-bold tracking-tight text-text sm:text-3xl">การตั้งค่า</h1>
+                                <p className="mt-1 text-sm text-text-muted">จัดการโปรไฟล์และการตั้งค่าบัญชีของคุณ</p>
+                            </div>
+                        </div>
+                    </header>
+
+                    {/* Profile + Account */}
+                    <div className="grid gap-6 lg:grid-cols-[300px_minmax(0,1fr)]">
+
+                        {/* Profile */}
+                        <section className="h-fit overflow-hidden rounded-[26px] bg-surface shadow-[8px_10px_24px_rgba(20,80,143,0.11),-6px_-6px_16px_rgba(255,255,255,0.85)] dark:shadow-[8px_10px_24px_rgba(0,0,0,0.42),-4px_-4px_12px_rgba(255,255,255,0.03)]">
+                            <div className="border-b border-border/40 px-5 py-4">
+                                <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-text-muted">Profile</p>
+                                <p className="mt-1 text-xs text-text-muted">ข้อมูลโปรไฟล์ของคุณ</p>
+                            </div>
+
+                            <div className="px-5 py-7">
+                                <div className="flex flex-col items-center text-center">
+                                    <AvatarUpload userId={user.id} currentAvatarUrl={profile?.avatar_url} fallbackChar={fallbackChar} />
+
+                                    <h2 className="mt-5 max-w-full truncate text-lg font-bold text-text">{username}</h2>
+                                    <p className="mt-1 max-w-full truncate text-xs text-text-muted">{email}</p>
+
+                                    <div className="mt-5 w-full rounded-2xl bg-surface-2 px-4 py-3 text-left shadow-[inset_3px_3px_8px_rgba(20,80,143,0.08),inset_-3px_-3px_8px_rgba(255,255,255,0.75)] dark:shadow-[inset_3px_3px_8px_rgba(0,0,0,0.4),inset_-2px_-2px_6px_rgba(255,255,255,0.02)]">
+                                        <p className="text-[9px] font-semibold uppercase tracking-wider text-text-muted">Account ID</p>
+                                        <p className="mt-1 truncate font-mono text-[11px] text-text-muted">{user.id}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        {/* Account */}
+                        <section className="overflow-hidden rounded-[26px] bg-surface shadow-[8px_10px_24px_rgba(20,80,143,0.11),-6px_-6px_16px_rgba(255,255,255,0.85)] dark:shadow-[8px_10px_24px_rgba(0,0,0,0.42),-4px_-4px_12px_rgba(255,255,255,0.03)]">
+                            <div className="border-b border-border/40 px-5 py-4 sm:px-6">
+                                <div className="flex items-center justify-between gap-4">
+                                    <div>
+                                        <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-text-muted">Account Information</p>
+                                        <p className="mt-1 text-xs text-text-muted">แก้ไขข้อมูลส่วนตัวของคุณ</p>
+                                    </div>
+
+                                    <div className="hidden h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary sm:flex">
+                                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                                            <path d="M12 20h9" />
+                                            <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L8 18l-4 1 1-4 11.5-11.5Z" />
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="p-5 sm:p-6">
+                                <ProfileForm profile={profile} />
+                            </div>
+                        </section>
+                    </div>
+
+                    {/* Security */}
+                    <section className="mt-6 overflow-hidden rounded-[26px] bg-surface shadow-[8px_10px_24px_rgba(20,80,143,0.10),-6px_-6px_16px_rgba(255,255,255,0.82)] dark:shadow-[8px_10px_24px_rgba(0,0,0,0.4),-4px_-4px_12px_rgba(255,255,255,0.03)]">
+                        <div className="border-b border-border/40 px-5 py-4 sm:px-6">
+                            <div className="flex items-center gap-3">
+                                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                                        <rect x="4" y="10" width="16" height="11" rx="2" />
+                                        <path d="M8 10V7a4 4 0 0 1 8 0v3" />
+                                        <path d="M12 14v3" />
+                                    </svg>
+                                </div>
+
+                                <div>
+                                    <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-text-muted">Security</p>
+                                    <p className="mt-1 text-xs text-text-muted">จัดการความปลอดภัยของบัญชี</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="divide-y divide-border/30">
+                            {/* Email */}
+                            <div className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+                                <div className="flex min-w-0 items-center gap-3">
+                                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-surface-2 text-text-muted">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                                            <rect x="3" y="5" width="18" height="14" rx="2" />
+                                            <path d="m3 7 9 6 9-6" />
+                                        </svg>
+                                    </div>
+
+                                    <div className="min-w-0">
+                                        <p className="text-sm font-medium text-text">อีเมล</p>
+                                        <p className="mt-0.5 truncate text-xs text-text-muted">{email}</p>
+                                    </div>
+                                </div>
+
+                                <div className="flex w-fit items-center gap-1.5 rounded-full bg-green-500/10 px-2.5 py-1 text-[10px] font-medium text-green-600 dark:text-green-400">
+                                    <span className="h-1.5 w-1.5 rounded-full bg-green-500" />
+                                    บัญชีใช้งานอยู่
+                                </div>
+                            </div>
+
+                            {/* Password */}
+                            <div className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+                                <div className="flex min-w-0 items-center gap-3">
+                                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-surface-2 text-text-muted">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                                            <rect x="4" y="10" width="16" height="11" rx="2" />
+                                            <path d="M8 10V7a4 4 0 0 1 8 0v3" />
+                                        </svg>
+                                    </div>
+
+                                    <div>
+                                        <p className="text-sm font-medium text-text">รหัสผ่าน</p>
+                                        <p className="mt-0.5 text-xs text-text-muted">••••••••••••</p>
+                                    </div>
+                                </div>
+
+                                <button type="button" className="w-fit rounded-xl bg-surface-2 px-3.5 py-2 text-xs font-medium text-text-muted shadow-[3px_3px_8px_rgba(20,80,143,0.10),-2px_-2px_6px_rgba(255,255,255,0.75)] transition hover:text-primary active:translate-y-[1px] dark:shadow-[3px_3px_8px_rgba(0,0,0,0.35),-2px_-2px_5px_rgba(255,255,255,0.02)]">เปลี่ยนรหัสผ่าน</button>
+                            </div>
+
+                            {/* Account ID */}
+                            <div className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+                                <div className="flex min-w-0 items-center gap-3">
+                                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-surface-2 text-text-muted">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                                            <path d="M4 7h16" />
+                                            <path d="M4 12h16" />
+                                            <path d="M4 17h16" />
+                                        </svg>
+                                    </div>
+
+                                    <div className="min-w-0">
+                                        <p className="text-sm font-medium text-text">รหัสบัญชี</p>
+                                        <p className="mt-0.5 truncate font-mono text-xs text-text-muted">{user.id}</p>
+                                    </div>
+                                </div>
+
+                                <span className="text-[10px] text-text-muted">ใช้สำหรับระบุบัญชีของคุณ</span>
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* Danger Zone */}
+                    <section className="mt-6 overflow-hidden rounded-[26px] border border-red-200/70 bg-surface shadow-[8px_10px_24px_rgba(20,80,143,0.08),-5px_-5px_14px_rgba(255,255,255,0.8)] dark:border-red-500/10 dark:shadow-[8px_10px_24px_rgba(0,0,0,0.38),-4px_-4px_10px_rgba(255,255,255,0.02)]">
+                        <div className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between sm:px-6 sm:py-5">
+                            <div className="flex min-w-0 items-start gap-3.5">
+                                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-red-500/10 text-red-500">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                                        <path d="M12 9v4" />
+                                        <path d="M12 17h.01" />
+                                        <path d="M10.3 3.8 2.6 17a2 2 0 0 0 1.73 3h15.34a2 2 0 0 0 1.73-3L13.7 3.8a2 2 0 0 0-3.4 0Z" />
+                                    </svg>
+                                </div>
+
+                                <div className="min-w-0">
+                                    <h2 className="text-sm font-semibold text-red-600 dark:text-red-400">โซนอันตราย</h2>
+                                    <p className="mt-1 text-xs leading-relaxed text-text-muted">การลบบัญชีจะลบข้อมูลทั้งหมดของคุณอย่างถาวร และไม่สามารถกู้คืนได้</p>
+                                </div>
+                            </div>
+
+                            <div className="shrink-0">
+                                <DeleteAccountButton action={deleteProfile} />
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* Footer */}
+                    <footer className="py-7 text-center">
+                        <p className="text-xs text-text-muted/60">ต้องการความช่วยเหลือ? <a href="#" className="font-medium text-primary transition hover:underline">ติดต่อเรา</a></p>
+                    </footer>
                 </div>
-                </div>
-
-                <ProfileForm profile={profile} />
-            </div>
-
-            {/* Danger Zone */}
-            <div className="rounded-2xl sm:rounded-3xl border-l-4 border-red-400 dark:border-red-500/50 bg-gradient-to-br from-red-50/30 to-red-50/10 dark:from-red-500/10 dark:to-red-500/5 p-5 sm:p-6 lg:p-8 shadow-[12px_12px_28px_rgba(20,80,143,0.1),-8px_-8px_24px_rgba(255,255,255,0.6)] dark:shadow-[12px_12px_28px_rgba(0,0,0,0.45),-6px_-6px_18px_rgba(255,255,255,0.02)]">
-                <div className="flex items-start gap-3 mb-4">
-                <svg className="h-5 w-5 sm:h-6 sm:w-6 text-red-500 dark:text-red-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                </svg>
-                <div className="flex-1 min-w-0">
-                    <h2 className="text-base sm:text-lg font-semibold text-red-700 dark:text-red-400">โซนอันตราย</h2>
-                    <p className="mt-1 text-xs sm:text-sm text-red-600/80 dark:text-red-400/70">
-                    ข้อมูลนี้ไม่สามารถยกเลิกได้ กรุณาทำอย่างระวัง
-                    </p>
-                </div>
-                </div>
-
-                <p className="text-xs sm:text-sm text-red-600/90 dark:text-red-400/80 mb-4 pl-8 sm:pl-9">
-                เมื่อลบบัญชี ข้อมูลทั้งหมดของคุณจะถูกลบอย่างถาวร และไม่สามารถกู้คืนได้
-                </p>
-
-                <div className="pl-8 sm:pl-9">
-                <DeleteAccountButton action={deleteProfile} />
-                </div>
-            </div>
-
-            {/* Footer */}
-            <div className="mt-6 sm:mt-8 text-center text-xs sm:text-sm text-text-muted/60">
-                <p>สำหรับความช่วยเหลือเพิ่มเติม <a href="#" className="text-primary hover:underline">ติดต่อเรา</a></p>
-            </div>
-            </div>
-        </div>
+            </main>
         </>
     )
 }

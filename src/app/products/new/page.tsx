@@ -19,7 +19,7 @@ export default async function NewProductPage({
         <>
         <Navbar />
         <div className="min-h-screen bg-bg px-4 py-10 sm:px-8">
-            <div className="mx-auto max-w-2xl">
+            <div className="mx-auto max-w-6xl">
             <h1 className="text-2xl font-semibold text-text">ลงขายสินค้า</h1>
             <p className="mt-1 text-sm text-text-muted">กรอกรายละเอียดสินค้าที่ต้องการขาย</p>
 
@@ -29,7 +29,7 @@ export default async function NewProductPage({
                 </p>
             )}
 
-            <div className="mt-6 rounded-[2rem] bg-surface p-8 shadow-[10px_10px_26px_rgba(20,80,143,0.15),-8px_-8px_20px_rgba(255,255,255,0.9)] dark:shadow-[10px_10px_28px_rgba(0,0,0,0.5),-6px_-6px_16px_rgba(255,255,255,0.03)]">
+            <div className="">
                 <ProductForm userId={user.id} categories={categories ?? []} />
             </div>
             </div>

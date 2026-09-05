@@ -1,6 +1,8 @@
 import { createClient } from '@/lib/supabase/server'
 import { UserMenu } from './UserMenu'
 import { ThemeToggle } from '@/components/ThemeToggle'
+import { SearchBar } from './SearchBar'
+import { MobileSearchToggle } from './MobileSearchToggle'
 
 export async function Navbar() {
     const supabase = await createClient()
@@ -21,18 +23,17 @@ export async function Navbar() {
 
     return (
         <nav className="sticky top-0 z-20 border-b border-border bg-surface/90 px-4 py-3 backdrop-blur sm:px-8">
-        <div className="mx-auto flex max-w-6xl items-center justify-between">
+        <div className="relative mx-auto flex max-w-6xl items-center justify-between">
             <a href="/" className="flex items-center gap-2">
             <img src="/images/logo.png" alt="CompMart" className="h-12 w-auto" />
             </a>
 
             <div className="hidden flex-1 justify-center px-8 sm:flex">
-            <div className="w-full max-w-md rounded-2xl bg-surface-2 px-4 py-2.5 text-sm text-text-muted shadow-[inset_3px_3px_8px_rgba(20,80,143,0.12),inset_-3px_-3px_8px_rgba(255,255,255,0.8)]">
-                ค้นหาอุปกรณ์คอม, เกมมิ่งเกียร์...
+            <SearchBar />
             </div>
-            </div>
-            
+
             <div className="flex items-center gap-3">
+                <MobileSearchToggle />
                 <ThemeToggle />
                 {user ? <UserMenu username={username} avatarUrl={avatarUrl} /> : (
                     <div className="flex items-center gap-2">

@@ -49,7 +49,7 @@ export default async function MessagesPage() {
         <>
         <Navbar />
         <div className="min-h-screen bg-bg px-4 py-10 sm:px-8">
-            <div className="mx-auto max-w-2xl">
+            <div className="mx-auto max-w-6xl">
             <h1 className="text-2xl font-semibold text-text">ข้อความ</h1>
             <p className="mt-1 text-sm text-text-muted">ประวัติการสนทนากับผู้ซื้อ/ผู้ขาย</p>
 

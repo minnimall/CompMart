@@ -6,7 +6,7 @@ interface AuthInputProps {
     minLength?: number
     autoComplete?: string
     defaultValue?: string
-    icon: React.ReactNode
+    icon?: React.ReactNode
 }
 
 export function AuthInput({
@@ -21,13 +21,15 @@ export function AuthInput({
 }: AuthInputProps) {
     return (
         <div>
-        <label htmlFor={name} className="mb-2 block text-sm font-medium text-text">
+        <label htmlFor={name} className="mb-1.5 block text-xs font-medium text-text">
             {label}
         </label>
         <div className="relative">
-            <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-primary/70">
-            {icon}
-            </span>
+            {icon && (
+                <span className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-primary/70">
+                    {icon}
+                </span>
+            )}
             <input
             id={name}
             name={name}
@@ -36,7 +38,8 @@ export function AuthInput({
             minLength={minLength}
             autoComplete={autoComplete}
             defaultValue={defaultValue}
-            className="w-full rounded-2xl border-0 bg-surface-2 py-3.5 pl-12 pr-4 text-text outline-none transition shadow-[inset_4px_4px_10px_rgba(20,80,143,0.15),inset_-4px_-4px_10px_rgba(255,255,255,0.85)] dark:shadow-[inset_4px_4px_10px_rgba(0,0,0,0.5),inset_-3px_-3px_8px_rgba(255,255,255,0.03)] focus:shadow-[inset_2px_2px_6px_rgba(20,80,143,0.2),inset_-2px_-2px_6px_rgba(255,255,255,0.9)] dark:focus:shadow-[inset_2px_2px_6px_rgba(0,0,0,0.6),inset_-2px_-2px_6px_rgba(255,255,255,0.03)] focus:ring-2 focus:ring-primary/30"
+            className="h-[42px] w-full rounded-xl border-0 bg-surface-2 px-3.5 text-sm text-text outline-none transition shadow-[inset_3px_3px_8px_rgba(20,80,143,0.10),inset_-3px_-3px_8px_rgba(255,255,255,0.8)] focus:ring-2 focus:ring-primary/25 dark:shadow-[inset_3px_3px_8px_rgba(0,0,0,0.45),inset_-2px_-2px_6px_rgba(255,255,255,0.03)]"
+            style={icon ? { paddingLeft: '2.75rem' } : {}}
             />
         </div>
         </div>

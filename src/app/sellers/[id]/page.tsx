@@ -61,7 +61,7 @@ export default async function SellerProfilePage({
             <Navbar />
 
             <main className="min-h-screen bg-bg px-4 py-8 sm:px-6 lg:px-8">
-                <div className="mx-auto max-w-5xl">
+                <div className="mx-auto max-w-6xl">
 
                     {/* ================= PROFILE HERO ================= */}
                     <section
@@ -212,10 +212,7 @@ export default async function SellerProfilePage({
                                             className="
                                                 group rounded-[22px]
                                                 bg-surface p-3
-                                                shadow-[7px_7px_15px_rgba(20,80,143,0.12),-6px_-6px_15px_rgba(255,255,255,0.85)]
-                                                transition-all duration-200
-                                                hover:-translate-y-1
-                                                hover:shadow-[9px_9px_20px_rgba(20,80,143,0.16),-7px_-7px_18px_rgba(255,255,255,0.9)]
+                                        
                                                 dark:shadow-[7px_7px_16px_rgba(0,0,0,0.45),-4px_-4px_10px_rgba(255,255,255,0.025)]
                                             "
                                         >

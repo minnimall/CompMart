@@ -138,8 +138,6 @@ export function ProductDetailActions({
                 {stock < 1 ? 'สินค้าหมด' : 'สั่งซื้อ'}
             </button>
 
-            <FavoriteButton productId={productId} initialFavorited={isFavorited} />
-
             {isOrderOpen && (
                 <OrderModal
                 productId={productId}
