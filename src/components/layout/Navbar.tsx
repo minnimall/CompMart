@@ -3,6 +3,8 @@ import { UserMenu } from './UserMenu'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { SearchBar } from './SearchBar'
 import { MobileSearchToggle } from './MobileSearchToggle'
+import { NotificationBell } from './NotificationBell'
+import { getUnreadMessageCount } from '@/lib/actions/notifications'
 
 export async function Navbar() {
     const supabase = await createClient()
@@ -10,6 +12,7 @@ export async function Navbar() {
 
     let username = ''
     let avatarUrl: string | null = null
+    let unreadCount = 0
 
     if (user) {
         const { data: profile } = await supabase
@@ -19,6 +22,7 @@ export async function Navbar() {
             .single()
         username = profile?.username ?? user.email?.split('@')[0] ?? 'สมาชิก'
         avatarUrl = profile?.avatar_url ?? null
+        unreadCount = await getUnreadMessageCount()
     }
 
     return (
@@ -33,7 +37,7 @@ export async function Navbar() {
             </div>
 
             <div className="flex items-center gap-3">
-                <MobileSearchToggle />
+                {user && <NotificationBell userId={user.id} initialCount={unreadCount} />}
                 <ThemeToggle />
                 {user ? <UserMenu username={username} avatarUrl={avatarUrl} /> : (
                     <div className="flex items-center gap-2">
