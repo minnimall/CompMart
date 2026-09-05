@@ -3,7 +3,13 @@
 import { useEffect, useRef, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 
-export function SearchBar() {
+export function SearchBar({
+    autoFocus = false,
+    onSubmitted,
+}: {
+    autoFocus?: boolean
+    onSubmitted?: () => void
+} = {}) {
     const router = useRouter()
     const searchParams = useSearchParams()
     const [query, setQuery] = useState(searchParams.get('search') ?? '')
@@ -27,6 +33,7 @@ export function SearchBar() {
             params.delete('search')
         }
         router.push(params.toString() ? `/?${params.toString()}` : '/')
+        onSubmitted?.()
         }, 400)
 
         return () => {
@@ -42,6 +49,7 @@ export function SearchBar() {
             <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z" />
             </svg>
             <input
+            autoFocus={autoFocus}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="ค้นหาอุปกรณ์คอม, เกมมิ่งเกียร์..."

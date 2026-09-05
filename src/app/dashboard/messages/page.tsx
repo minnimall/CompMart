@@ -2,6 +2,29 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { Navbar } from '@/components/layout/Navbar'
 
+function formatConversationTime(dateString?: string): string {
+    if (!dateString) return ''
+    const date = new Date(dateString)
+    const now = new Date()
+
+    const isToday = date.toDateString() === now.toDateString()
+    if (isToday) {
+        return date.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })
+    }
+
+    const yesterday = new Date(now)
+    yesterday.setDate(now.getDate() - 1)
+    const isYesterday = date.toDateString() === yesterday.toDateString()
+    if (isYesterday) return 'เมื่อวาน'
+
+    const isSameYear = date.getFullYear() === now.getFullYear()
+    return date.toLocaleDateString('th-TH', {
+        day: 'numeric',
+        month: 'short',
+        year: isSameYear ? undefined : '2-digit',
+    })
+}
+
 export default async function MessagesPage() {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -75,18 +98,21 @@ export default async function MessagesPage() {
                         )}
                         </div>
                         <div className="min-w-0 flex-1">
-                        <div className="flex items-center justify-between">
-                            <p className="truncate text-sm font-medium text-text">{otherParty?.username}</p>
-                            {c.unreadCount > 0 && (
-                            <span className="ml-2 shrink-0 rounded-full bg-primary px-2 py-0.5 text-[11px] font-medium text-white">
-                                {c.unreadCount}
-                            </span>
-                            )}
-                        </div>
+                        <p className="truncate text-sm font-medium text-text">{otherParty?.username}</p>
                         <p className="truncate text-xs text-primary">{product?.title}</p>
                         <p className="truncate text-xs text-text-muted">
                             {c.lastMessage?.content ?? 'เริ่มการสนทนา'}
                         </p>
+                        </div>
+                        <div className="flex shrink-0 flex-col items-end gap-1">
+                        <span className="text-[11px] text-text-muted">
+                            {formatConversationTime(c.lastMessage?.created_at ?? c.created_at)}
+                        </span>
+                        {c.unreadCount > 0 && (
+                            <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-primary px-1.5 text-[11px] font-medium text-white">
+                            {c.unreadCount > 9 ? '9+' : c.unreadCount}
+                            </span>
+                        )}
                         </div>
                     </a>
                     )

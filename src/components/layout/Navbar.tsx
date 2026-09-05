@@ -37,6 +37,7 @@ export async function Navbar() {
             </div>
 
             <div className="flex items-center gap-3">
+                <MobileSearchToggle />
                 {user && <NotificationBell userId={user.id} initialCount={unreadCount} />}
                 <ThemeToggle />
                 {user ? <UserMenu username={username} avatarUrl={avatarUrl} /> : (

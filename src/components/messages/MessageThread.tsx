@@ -28,11 +28,13 @@ export function MessageThread({
     currentUserId,
     initialMessages,
     currentUserAvatar,
+    otherPartyInfo,
 }: {
     conversationId: string
     currentUserId: string
     initialMessages: Message[]
     currentUserAvatar?: string | null
+    otherPartyInfo?: Sender | null
 }) {
     const [messages, setMessages] = useState<Message[]>(initialMessages)
     const [input, setInput] = useState('')
@@ -57,41 +59,59 @@ export function MessageThread({
 
     useEffect(() => {
         const supabase = createClient()
+        let channel: ReturnType<typeof supabase.channel> | null = null
+        let isCancelled = false
 
-        if (subscriptionRef.current) {
-            supabase.removeChannel(subscriptionRef.current)
+        async function setupRealtime() {
+            // สำคัญ: ต้องดึง session แล้วเซ็ต auth ให้ Realtime ก่อน subscribe
+            // ไม่งั้น WebSocket อาจเชื่อมต่อแบบไม่มี JWT (เป็น anon) แล้ว RLS จะบล็อกทุก event เงียบๆ
+            const { data: { session } } = await supabase.auth.getSession()
+            if (session?.access_token) {
+                supabase.realtime.setAuth(session.access_token)
+            }
+
+            if (isCancelled) return
+
+            channel = supabase
+                .channel(`messages:${conversationId}`, {
+                    config: { broadcast: { self: true } },
+                })
+                .on(
+                    'postgres_changes',
+                    {
+                        event: 'INSERT',
+                        schema: 'public',
+                        table: 'messages',
+                        filter: `conversation_id=eq.${conversationId}`,
+                    },
+                    (payload) => {
+                        const newMessage = payload.new as Message
+                        const enrichedMessage: Message = {
+                            ...newMessage,
+                            sender: newMessage.sender_id === currentUserId
+                                ? { username: 'คุณ', avatar_url: currentUserAvatar ?? null }
+                                : otherPartyInfo ?? null,
+                        }
+                        setMessages((prev) => {
+                            if (prev.some((m) => m.id === enrichedMessage.id)) return prev
+                            return [...prev, enrichedMessage]
+                        })
+                        if (newMessage.sender_id !== currentUserId) {
+                            markConversationRead(conversationId)
+                        }
+                    }
+                )
+                .subscribe((status) => {
+                    console.log(`Channel status: ${status}`)
+                })
+
+            subscriptionRef.current = channel
         }
 
-        const channel = supabase
-            .channel(`messages:${conversationId}`, {
-                config: { broadcast: { self: true } },
-            })
-            .on(
-                'postgres_changes',
-                {
-                    event: 'INSERT',
-                    schema: 'public',
-                    table: 'messages',
-                    filter: `conversation_id=eq.${conversationId}`,
-                },
-                (payload) => {
-                    const newMessage = payload.new as Message
-                    setMessages((prev) => {
-                        if (prev.some((m) => m.id === newMessage.id)) return prev
-                        return [...prev, newMessage]
-                    })
-                    if (newMessage.sender_id !== currentUserId) {
-                        markConversationRead(conversationId)
-                    }
-                }
-            )
-            .subscribe((status) => {
-                console.log(`Channel status: ${status}`)
-            })
-
-        subscriptionRef.current = channel
+        setupRealtime()
 
         return () => {
+            isCancelled = true
             if (subscriptionRef.current) {
                 supabase.removeChannel(subscriptionRef.current)
             }
@@ -271,129 +291,117 @@ export function MessageThread({
                         <p className="py-10 text-center text-sm text-text-muted">เริ่มต้นการสนทนาได้เลย</p>
                     )}
 
-                    {/* Render message groups with avatars */}
                     {messageGroups.map((group: MessageGroup, groupIndex: number) => {
                         const isMine = group.senderId === currentUserId
                         const avatar = isMine ? currentUserAvatar : group.sender?.avatar_url
                         const username = group.sender?.username
 
+                        // เช็คว่ากลุ่มนี้ต้องมีป้ายเวลาคั่นก่อนหน้าไหม (เทียบกับข้อความสุดท้ายของกลุ่มก่อน)
+                        const firstMsgOfGroup = group.messages[0]
+                        const flatIndex = messages.findIndex((msg) => msg.id === firstMsgOfGroup.id)
+                        const prevMsg = flatIndex > 0 ? messages[flatIndex - 1] : null
+                        const showDivider = !prevMsg ||
+                            new Date(firstMsgOfGroup.created_at).getTime() - new Date(prevMsg.created_at).getTime() > DIVIDER_GAP_MS
+
                         return (
-                            <div key={`group-${groupIndex}`} className={`flex gap-2 ${isMine ? 'justify-end' : 'justify-start'}`}>
-                                {/* Avatar for other users */}
-                                {!isMine && (
-                                    <div className="mt-1 h-8 w-8 shrink-0 overflow-hidden rounded-full bg-surface-2">
-                                        {avatar && (
-                                            // eslint-disable-next-line @next/next/no-img-element
-                                            <img
-                                                src={avatar}
-                                                alt={username || 'user'}
-                                                className="h-full w-full object-cover"
-                                            />
-                                        )}
-                                    </div>
+                            <div key={`group-${groupIndex}`}>
+                                {showDivider && (
+                                    <p className="py-2 text-center text-xs text-text-muted">
+                                        {formatMessageTime(firstMsgOfGroup.created_at)}
+                                    </p>
                                 )}
 
-                                {/* Messages container */}
-                                <div className={`flex max-w-[75%] flex-col ${isMine ? 'items-end' : 'items-start'}`}>
+                                <div className={`flex gap-2 ${isMine ? 'justify-end' : 'justify-start'}`}>
+                                    {/* Avatar for other users */}
                                     {!isMine && (
-                                        <p className="mb-1 text-xs font-medium text-text-muted">{username}</p>
+                                        <div className="mt-1 h-8 w-8 shrink-0 overflow-hidden rounded-full bg-surface-2">
+                                            {avatar && (
+                                                // eslint-disable-next-line @next/next/no-img-element
+                                                <img
+                                                    src={avatar}
+                                                    alt={username || 'user'}
+                                                    className="h-full w-full object-cover"
+                                                />
+                                            )}
+                                        </div>
                                     )}
 
-                                    {/* Messages */}
-                                    <div className="space-y-1">
-                                        {group.messages.map((m: Message, msgIndex: number) => (
-                                            <div key={m.id}>
-                                                {/* Show timestamp between message groups if time gap > 5 min */}
-                                                {msgIndex === 0 && (() => {
-                                                    // หาข้อความก่อนหน้าจริงๆ ในไทม์ไลน์ (ไม่ใช่แค่ในกลุ่มก่อนหน้า)
-                                                    const flatIndex = messages.findIndex((msg) => msg.id === m.id)
-                                                    const prevMsg = flatIndex > 0 ? messages[flatIndex - 1] : null
-
-                                                    // ข้อความแรกสุดของแชท ให้โชว์เวลาเสมอ
-                                                    if (!prevMsg) {
-                                                        return (
-                                                            <p className="py-2 text-center text-xs text-text-muted">
-                                                                {formatMessageTime(m.created_at)}
-                                                            </p>
-                                                        )
-                                                    }
-
-                                                    const timeDiff = new Date(m.created_at).getTime() - new Date(prevMsg.created_at).getTime()
-                                                    if (timeDiff > DIVIDER_GAP_MS) {
-                                                        return (
-                                                            <p className="py-2 text-center text-xs text-text-muted">
-                                                                {formatMessageTime(m.created_at)}
-                                                            </p>
-                                                        )
-                                                    }
-                                                    return null
-                                                })()}
-
-                                                <div
-                                                    className="group/msg relative flex items-center gap-2"
-                                                    onMouseEnter={() => setHoveredMessageId(m.id)}
-                                                    onMouseLeave={() => setHoveredMessageId(null)}
-                                                >
-                                                    <div
-                                                        className={`group rounded-2xl px-4 py-2 text-sm transition ${
-                                                            isMine ? 'bg-primary text-white' : 'bg-surface-2 text-text'
-                                                        }`}
-                                                    >
-                                                        {m.image_url && (
-                                                            <a href={m.image_url} target="_blank" rel="noopener noreferrer">
-                                                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                                                <img
-                                                                    src={m.image_url}
-                                                                    alt="รูปภาพที่ส่ง"
-                                                                    className="mb-1 max-h-60 w-full max-w-[240px] rounded-xl object-cover"
-                                                                />
-                                                            </a>
-                                                        )}
-                                                        {m.content && <span>{m.content}</span>}
-                                                        <span className="ml-2 inline-block whitespace-nowrap text-[11px] opacity-70">
-                                                            {new Date(m.created_at).getHours().toString().padStart(2, '0')}:
-                                                            {new Date(m.created_at).getMinutes().toString().padStart(2, '0')}
-                                                        </span>
-                                                    </div>
-
-                                                    {isMine && hoveredMessageId === m.id && (
-                                                        <button
-                                                            onClick={() => handleDeleteClick(m.id)}
-                                                            disabled={deletingMessageId === m.id}
-                                                            className="shrink-0 rounded-full p-1.5 text-text-muted transition hover:bg-surface-2 hover:text-red-500 disabled:opacity-50"
-                                                            title="ลบข้อความ"
-                                                        >
-                                                            {deletingMessageId === m.id ? (
-                                                                <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                                                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                                                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                                                                </svg>
-                                                            ) : (
-                                                                <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
-                                                                    <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z" />
-                                                                </svg>
-                                                            )}
-                                                        </button>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-
-                                {/* Avatar for current user (right side) */}
-                                {isMine && (
-                                    <div className="mt-1 h-8 w-8 shrink-0 overflow-hidden rounded-full bg-surface-2">
-                                        {currentUserAvatar && (
-                                            // eslint-disable-next-line @next/next/no-img-element
-                                            <img
-                                                src={currentUserAvatar}
-                                                alt="you"
-                                                className="h-full w-full object-cover"
-                                            />
+                                    {/* Messages container */}
+                                    <div className={`flex max-w-[75%] flex-col ${isMine ? 'items-end' : 'items-start'}`}>
+                                        {!isMine && (
+                                            <p className="mb-1 text-xs font-medium text-text-muted">{username}</p>
                                         )}
+
+                                        {/* Messages */}
+                                        <div className="space-y-1">
+                                            {group.messages.map((m: Message) => (
+                                                <div key={m.id}>
+                                                    <div
+                                                        className="group/msg relative flex items-center gap-2"
+                                                        onMouseEnter={() => setHoveredMessageId(m.id)}
+                                                        onMouseLeave={() => setHoveredMessageId(null)}
+                                                    >
+                                                        <div
+                                                            className={`group rounded-2xl px-4 py-2 text-sm transition ${
+                                                                isMine ? 'bg-primary text-white' : 'bg-surface-2 text-text'
+                                                            }`}
+                                                        >
+                                                            {m.image_url && (
+                                                                <a href={m.image_url} target="_blank" rel="noopener noreferrer">
+                                                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                                                    <img
+                                                                        src={m.image_url}
+                                                                        alt="รูปภาพที่ส่ง"
+                                                                        className="mb-1 max-h-60 w-full max-w-[240px] rounded-xl object-cover"
+                                                                    />
+                                                                </a>
+                                                            )}
+                                                            {m.content && <span>{m.content}</span>}
+                                                            <span className="ml-2 inline-block whitespace-nowrap text-[11px] opacity-70">
+                                                                {new Date(m.created_at).getHours().toString().padStart(2, '0')}:
+                                                                {new Date(m.created_at).getMinutes().toString().padStart(2, '0')}
+                                                            </span>
+                                                        </div>
+
+                                                        {isMine && hoveredMessageId === m.id && (
+                                                            <button
+                                                                onClick={() => handleDeleteClick(m.id)}
+                                                                disabled={deletingMessageId === m.id}
+                                                                className="shrink-0 rounded-full p-1.5 text-text-muted transition hover:bg-surface-2 hover:text-red-500 disabled:opacity-50"
+                                                                title="ลบข้อความ"
+                                                            >
+                                                                {deletingMessageId === m.id ? (
+                                                                    <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                                                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                                                                    </svg>
+                                                                ) : (
+                                                                    <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                                                                        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z" />
+                                                                    </svg>
+                                                                )}
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
                                     </div>
-                                )}
+
+                                    {/* Avatar for current user (right side) */}
+                                    {isMine && (
+                                        <div className="mt-1 h-8 w-8 shrink-0 overflow-hidden rounded-full bg-surface-2">
+                                            {currentUserAvatar && (
+                                                // eslint-disable-next-line @next/next/no-img-element
+                                                <img
+                                                    src={currentUserAvatar}
+                                                    alt="you"
+                                                    className="h-full w-full object-cover"
+                                                />
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                         )
                     })}

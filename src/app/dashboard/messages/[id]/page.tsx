@@ -119,6 +119,7 @@ export default async function ConversationPage({
                         currentUserId={user.id}
                         initialMessages={messages}
                         currentUserAvatar={currentUserProfile?.avatar_url}
+                        otherPartyInfo={otherParty ? { username: otherParty.username, avatar_url: otherParty.avatar_url } : null}
                     />
                 </div>
             </div>

@@ -24,25 +24,40 @@ export function NotificationBell({
         }
 
         const supabase = createClient()
-        const channel = supabase
-            .channel(`notif:${userId}`)
-            .on(
-                'postgres_changes',
-                { event: '*', schema: 'public', table: 'messages', filter: `buyer_id=eq.${userId}` },
-                refetch
-            )
-            .on(
-                'postgres_changes',
-                { event: '*', schema: 'public', table: 'messages', filter: `seller_id=eq.${userId}` },
-                refetch
-            )
-            .subscribe((status) => {
-                console.log('[NotificationBell] channel status:', status)
-            })
+        let channel: ReturnType<typeof supabase.channel> | null = null
+        let isCancelled = false
+
+        async function setupRealtime() {
+            const { data: { session } } = await supabase.auth.getSession()
+            if (session?.access_token) {
+                supabase.realtime.setAuth(session.access_token)
+            }
+
+            if (isCancelled) return
+
+            channel = supabase
+                .channel(`notif:${userId}`)
+                .on(
+                    'postgres_changes',
+                    { event: '*', schema: 'public', table: 'messages', filter: `buyer_id=eq.${userId}` },
+                    refetch
+                )
+                .on(
+                    'postgres_changes',
+                    { event: '*', schema: 'public', table: 'messages', filter: `seller_id=eq.${userId}` },
+                    refetch
+                )
+                .subscribe((status) => {
+                    console.log('[NotificationBell] channel status:', status)
+                })
+        }
+
+        setupRealtime()
 
         return () => {
+            isCancelled = true
             if (debounceRef.current) clearTimeout(debounceRef.current)
-            supabase.removeChannel(channel)
+            if (channel) supabase.removeChannel(channel)
         }
     }, [userId])
 
