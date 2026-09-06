@@ -85,7 +85,7 @@ export default async function OrdersPage() {
 
                         {/* Product Info */}
                         <div className="min-w-0 flex-1">
-                            <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                            <div className="flex items-start justify-between gap-3">
                                 <div className="min-w-0">
                                     <h3 className="truncate text-sm font-semibold text-text sm:text-[15px]">{product?.title ?? 'ไม่พบชื่อสินค้า'}</h3>
                                     <p className="mt-1 text-xs text-text-muted">{role === 'buyer' ? 'ผู้ขาย' : 'ผู้ซื้อ'}: {otherParty?.username ?? 'ไม่ระบุ'}</p>
