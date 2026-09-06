@@ -30,9 +30,9 @@ export function DeleteAccountButton({ action }: { action: (formData: FormData) =
             <button
                 type="button"
                 onClick={() => setIsOpen(true)}
-                className="rounded-2xl bg-red-500/90 hover:bg-red-600 px-6 py-3 font-medium text-white shadow-[6px_6px_14px_rgba(239,68,68,0.35)] transition active:shadow-[inset_4px_4px_10px_rgba(185,28,28,0.4)] active:translate-y-[1px]"
+                className="rounded-2xl bg-red-500/90 hover:bg-red-700 px-6 py-3 font-medium text-white shadow-[6px_6px_14px_rgba(239,68,68,0.35)] transition active:shadow-[inset_4px_4px_10px_rgba(185,28,28,0.4)] active:translate-y-[1px]"
             >
-                🗑️ ลบบัญชี
+                ลบบัญชี
             </button>
 
             {isOpen && (

@@ -32,7 +32,7 @@ export function ProductForm({
 
                     {/* Card Header */}
                     <div className="border-b border-border/40 px-5 py-4 sm:px-6">
-                        <h2 className="text-sm font-semibold text-text">Create Product</h2>
+                        <h2 className="text-sm font-semibold text-text">เพิ่มสินค้า</h2>
                         <p className="mt-0.5 text-[11px] text-text-muted">เพิ่มข้อมูลสินค้าและรายละเอียดเพื่อเริ่มต้นการขาย</p>
                     </div>
 
@@ -41,10 +41,6 @@ export function ProductForm({
 
                         {/* LEFT : PRODUCT INFORMATION */}
                         <div className="p-5 sm:p-6">
-                            <div className="mb-5">
-                                <p className="text-xs font-semibold uppercase tracking-wide text-text-muted">Product Information</p>
-                            </div>
-
                             <div className="space-y-4">
 
                                 {/* Product Name */}
@@ -103,7 +99,7 @@ export function ProductForm({
                         {/* RIGHT : PRODUCT PHOTOS */}
                         <div className="border-t border-border/40 bg-surface-2/30 p-5 sm:p-6 lg:border-l lg:border-t-0">
                             <div className="mb-5">
-                                <p className="text-xs font-semibold uppercase tracking-wide text-text-muted">Product Photos</p>
+                                <p className="text-xs font-semibold uppercase tracking-wide text-text-muted">รูปภาพสินค้า</p>
                                 <p className="mt-1 text-[11px] text-text-muted">เพิ่มรูปภาพสินค้าเพื่อให้ผู้ซื้อเห็นสินค้าได้ชัดเจน</p>
                             </div>
 
@@ -114,10 +110,6 @@ export function ProductForm({
                                 <div className="flex items-center gap-2 text-[11px] text-text-muted">
                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="12" cy="12" r="9" /><path d="M12 11v5" /><path d="M12 8h.01" /></svg>
                                     <span>สามารถเพิ่มรูปภาพสินค้าได้หลายรูป</span>
-                                </div>
-                                <div className="flex items-center gap-2 text-[11px] text-text-muted">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M12 3v18" /><path d="M3 12h18" /></svg>
-                                    <span>แนะนำให้ใช้รูปภาพที่มีแสงสว่างเพียงพอ</span>
                                 </div>
                             </div>
                         </div>

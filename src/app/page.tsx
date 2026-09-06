@@ -72,7 +72,7 @@ export default async function Home({
           <div className="absolute inset-0 bg-gradient-to-t from-primary-dark/90 via-primary/50 to-transparent" />
 
           <div className="relative z-10 flex h-full flex-col justify-end p-8 sm:p-12">
-            <p className="mt-2 max-w-md text-sm text-white/95 sm:text-base">
+            <p className="mt-2 max-w-md text-sm text-white/95 sm:max-w-lg sm:text-base">
               Marketplace ซื้อขายอุปกรณ์คอมพิวเตอร์และเกมมิ่งเกียร์มือสอง-มือหนึ่ง
             </p>
             {user && (

@@ -42,7 +42,6 @@ export function ProductImageUpload({
 
     return (
         <div>
-        <label className="mb-2 block text-sm font-medium text-text">รูปสินค้า (สูงสุด 6 รูป)</label>
 
         <div className="flex flex-wrap gap-3">
             {images.map((url) => (
