@@ -34,7 +34,7 @@ export function PasswordInput({
             required
             minLength={minLength}
             autoComplete={autoComplete}
-            className="w-full rounded-2xl border-0 bg-surface-2 py-3.5 pl-12 pr-14 text-text outline-none transition shadow-[inset_4px_4px_10px_rgba(20,80,143,0.15),inset_-4px_-4px_10px_rgba(255,255,255,0.85)] focus:shadow-[inset_2px_2px_6px_rgba(20,80,143,0.2),inset_-2px_-2px_6px_rgba(255,255,255,0.9)] focus:ring-2 focus:ring-primary/30"
+            className="w-full rounded-xl border-0 bg-surface-2 py-3.5 pl-12 pr-14 text-text outline-none transition focus:shadow-[inset_2px_2px_6px_rgba(20,80,143,0.2),inset_-2px_-2px_6px_rgba(255,255,255,0.9)] focus:ring-2 focus:ring-primary/30"
             />
             <button
             type="button"

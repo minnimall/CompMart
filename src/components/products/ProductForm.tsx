@@ -99,7 +99,7 @@ export function ProductForm({
                         {/* RIGHT : PRODUCT PHOTOS */}
                         <div className="border-t border-border/40 bg-surface-2/30 p-5 sm:p-6 lg:border-l lg:border-t-0">
                             <div className="mb-5">
-                                <p className="text-xs font-semibold uppercase tracking-wide text-text-muted">รูปภาพสินค้า</p>
+                                <p className="text-xs font-semibold uppercase tracking-wide text-text-muted">รูปภาพสินค้า (สูงสุด 6 รูป)</p>
                                 <p className="mt-1 text-[11px] text-text-muted">เพิ่มรูปภาพสินค้าเพื่อให้ผู้ซื้อเห็นสินค้าได้ชัดเจน</p>
                             </div>
 
