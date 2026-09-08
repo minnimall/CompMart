@@ -10,7 +10,7 @@ export function SubmitButton({ label }: { label: string }) {
         type="submit"
         disabled={pending}
         className="group flex w-full items-center justify-center gap-2 rounded-2xl bg-primary py-4 font-medium text-white transition
-            shadow-[6px_6px_14px_rgba(20,80,143,0.35),-4px_-4px_10px_rgba(255,255,255,0.4)]
+            shadow-[2px_2px_4px_rgba(20,80,143,0.35),-2px_-2px_5px_rgba(255,255,255,0.4)]
             hover:bg-primary-dark
             active:shadow-[inset_4px_4px_10px_rgba(10,40,80,0.4),inset_-2px_-2px_6px_rgba(255,255,255,0.15)] active:translate-y-[1px]
             disabled:cursor-not-allowed disabled:opacity-70 disabled:active:translate-y-0 disabled:active:shadow-[6px_6px_14px_rgba(20,80,143,0.35),-4px_-4px_10px_rgba(255,255,255,0.4)]"

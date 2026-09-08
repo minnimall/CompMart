@@ -42,8 +42,6 @@ export function ProductImageUpload({
 
     return (
         <div>
-        <label className="mb-2 block text-sm font-medium text-text">รูปสินค้า (สูงสุด 6 รูป)</label>
-
         <div className="flex flex-wrap gap-3">
             {images.map((url) => (
             <div key={url} className="group relative h-24 w-24 overflow-hidden rounded-xl bg-surface-2 shadow-[inset_2px_2px_6px_rgba(20,80,143,0.12),inset_-2px_-2px_6px_rgba(255,255,255,0.8)] dark:shadow-[inset_2px_2px_6px_rgba(0,0,0,0.4),inset_-2px_-2px_6px_rgba(255,255,255,0.02)]">
