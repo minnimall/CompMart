@@ -76,17 +76,17 @@ export async function requestPasswordReset(formData: FormData) {
 
     const supabase = await createClient()
     
-    // ✅ ตรวจสอบว่ามี environment variable
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL
-    if (!siteUrl) {
-        console.error('NEXT_PUBLIC_SITE_URL is not set')
-        redirect('/forgot-password?error=' + encodeURIComponent('Configuration error'))
-    }
+    // ✅ ส่ง /auth/callback ให้แน่นอน
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+    const callbackUrl = `${siteUrl}/auth/callback?next=/reset-password`
+    
+    console.log('🔵 Password reset - Sending callback URL:', callbackUrl) // DEBUG
 
     const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
-        redirectTo: `${siteUrl}/auth/callback?next=/reset-password`,
+        redirectTo: callbackUrl,
     })
 
+    // ไม่ว่า success หรือ error ก็แสดงข้อความเดียวกัน (security)
     redirect('/forgot-password?message=' + encodeURIComponent('หากอีเมลนี้มีอยู่ในระบบ เราได้ส่งลิงก์รีเซ็ตรหัสผ่านไปให้แล้ว'))
 }
 
