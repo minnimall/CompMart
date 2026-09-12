@@ -1,39 +1,37 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
 export function RecoverySessionGate({ children }: { children: React.ReactNode }) {
-    const searchParams = useSearchParams()
-    const [status, setStatus] = useState<'checking' | 'ready' | 'invalid'>('checking')
+    const [ready, setReady] = useState(false)
+    const [invalid, setInvalid] = useState(false)
 
     useEffect(() => {
-        const code = searchParams.get('code')
         const supabase = createClient()
 
-        async function verify() {
-            if (!code) {
-                setStatus('invalid')
-                return
+        // เรียก getSession() เพื่อทริกเกอร์ให้ library อ่าน token จาก URL fragment
+        // แล้วสร้าง session พร้อมเก็บลง cookie ให้ server อ่านต่อได้
+        supabase.auth.getSession().then(({ data: { session } }) => {
+            if (session) {
+                setReady(true)
+                window.history.replaceState(null, '', window.location.pathname)
+            } else {
+                setInvalid(true)
             }
+        })
 
-            const { error } = await supabase.auth.exchangeCodeForSession(code)
-            if (error) {
-                console.error('exchangeCodeForSession error:', error.message)
-                setStatus('invalid')
-                return
+        const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
+            if (event === 'PASSWORD_RECOVERY' && session) {
+                setReady(true)
+                window.history.replaceState(null, '', window.location.pathname)
             }
+        })
 
-            // ลบ code ออกจาก URL กัน exchange ซ้ำถ้า refresh หน้า (code ใช้ได้ครั้งเดียว)
-            window.history.replaceState(null, '', window.location.pathname)
-            setStatus('ready')
-        }
+        return () => listener.subscription.unsubscribe()
+    }, [])
 
-        verify()
-    }, [searchParams])
-
-    if (status === 'invalid') {
+    if (invalid) {
         return (
             <p className="rounded-2xl bg-red-50 px-4 py-3 text-sm text-text shadow-[inset_2px_2px_6px_rgba(239,68,68,0.15)]">
                 ลิงก์หมดอายุหรือไม่ถูกต้อง กรุณาขอลิงก์ใหม่อีกครั้ง
@@ -41,7 +39,7 @@ export function RecoverySessionGate({ children }: { children: React.ReactNode })
         )
     }
 
-    if (status === 'checking') {
+    if (!ready) {
         return <p className="py-8 text-center text-sm text-text-muted">กำลังตรวจสอบลิงก์...</p>
     }
 
