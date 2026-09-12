@@ -52,6 +52,47 @@ export async function signIn(formData: FormData) {
     redirect('/')
 }
 
+export async function requestPasswordReset(formData: FormData) {
+    const email = formData.get('email') as string
+    if (!email?.trim()) {
+        redirect('/forgot-password?error=' + encodeURIComponent('กรุณากรอกอีเมล'))
+    }
+
+    const supabase = await createClient()
+    const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+        redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback?next=/reset-password`,
+    })
+
+    // ไม่บอกว่าอีเมลนี้มีในระบบจริงไหม (กัน user enumeration attack)
+    // ไม่ว่าจะเจอ error หรือไม่ ก็แสดงข้อความเดียวกันเสมอ
+    redirect('/forgot-password?message=' + encodeURIComponent('หากอีเมลนี้มีอยู่ในระบบ เราได้ส่งลิงก์รีเซ็ตรหัสผ่านไปให้แล้ว'))
+}
+
+export async function updatePassword(formData: FormData) {
+    const password = formData.get('password') as string
+    const confirmPassword = formData.get('confirmPassword') as string
+
+    if (!password || password.length < 6) {
+        redirect('/reset-password?error=' + encodeURIComponent('รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร'))
+    }
+    if (password !== confirmPassword) {
+        redirect('/reset-password?error=' + encodeURIComponent('รหัสผ่านไม่ตรงกัน'))
+    }
+
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) {
+        redirect('/login?error=' + encodeURIComponent('ลิงก์หมดอายุ กรุณาขอลิงก์ใหม่'))
+    }
+
+    const { error } = await supabase.auth.updateUser({ password })
+    if (error) {
+        redirect('/reset-password?error=' + encodeURIComponent('เปลี่ยนรหัสผ่านไม่สำเร็จ ลองใหม่อีกครั้ง'))
+    }
+
+    redirect('/login?message=' + encodeURIComponent('ตั้งรหัสผ่านใหม่สำเร็จ เข้าสู่ระบบได้เลย'))
+}
+
 export async function signOut() {
     const supabase = await createClient()
     await supabase.auth.signOut()
