@@ -52,6 +52,12 @@ export default async function LoginPage({
             />
             <PasswordInput autoComplete="current-password" />
 
+            <div className="flex justify-end">
+                <a href="/forgot-password" className="text-xs font-medium text-primary hover:text-primary-dark">
+                    ลืมรหัสผ่าน?
+                </a>
+            </div>
+
             <SubmitButton label="เข้าสู่ระบบ" />
         </form>
 
