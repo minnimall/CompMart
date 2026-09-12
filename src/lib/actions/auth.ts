@@ -60,11 +60,9 @@ export async function requestPasswordReset(formData: FormData) {
 
     const supabase = await createClient()
     const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
-        redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback?next=/reset-password`,
+        redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/reset-password`,
     })
 
-    // ไม่บอกว่าอีเมลนี้มีในระบบจริงไหม (กัน user enumeration attack)
-    // ไม่ว่าจะเจอ error หรือไม่ ก็แสดงข้อความเดียวกันเสมอ
     redirect('/forgot-password?message=' + encodeURIComponent('หากอีเมลนี้มีอยู่ในระบบ เราได้ส่งลิงก์รีเซ็ตรหัสผ่านไปให้แล้ว'))
 }
 

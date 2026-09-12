@@ -1,6 +1,7 @@
 import { updatePassword } from '@/lib/actions/auth'
 import { PasswordInput } from '@/components/auth/PasswordInput'
 import { SubmitButton } from '@/components/auth/SubmitButton'
+import { RecoverySessionGate } from '@/components/auth/RecoverySessionGate'
 
 export default async function ResetPasswordPage({
     searchParams,
@@ -22,14 +23,18 @@ export default async function ResetPasswordPage({
                 </p>
             )}
 
-            <form action={updatePassword} className="mt-8 space-y-5">
-                <PasswordInput name="password" minLength={6} autoComplete="new-password" />
-                <p className="!mt-2 text-xs text-text-muted">อย่างน้อย 6 ตัวอักษร</p>
+            <div className="mt-8">
+                <RecoverySessionGate>
+                    <form action={updatePassword} className="space-y-5">
+                        <PasswordInput name="password" minLength={6} autoComplete="new-password" />
+                        <p className="!mt-2 text-xs text-text-muted">อย่างน้อย 6 ตัวอักษร</p>
 
-                <PasswordInput name="confirmPassword" label="ยืนยันรหัสผ่าน" autoComplete="new-password" />
+                        <PasswordInput name="confirmPassword" label="ยืนยันรหัสผ่าน" autoComplete="new-password" />
 
-                <SubmitButton label="บันทึกรหัสผ่านใหม่" />
-            </form>
+                        <SubmitButton label="บันทึกรหัสผ่านใหม่" />
+                    </form>
+                </RecoverySessionGate>
+            </div>
         </div>
     )
 }
