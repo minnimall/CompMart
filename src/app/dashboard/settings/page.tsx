@@ -34,8 +34,8 @@ export default async function SettingsPage() {
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
                                     <path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z" />
                                     <path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-1.42 1.42-.06-.06a1.7 1.7 0 0 0-1.88-.34 1.7 1.7 0 0 0-1.03 1.56V21h-2v-.48a1.7 1.7 0 0 0-1.03-1.56 1.7 1.7 0 0 0-1.88.34l-.06.06-1.42-1.42.06-.06A1.7 1.7 0 0 0 9.4 15a1.7 1.7 0 0 0-1.56-1.03H7v-2h.84A1.7 1.7 0 0 0 9.4 10a1.7 1.7 0 0 0-.34-1.88L9 8.06l1.42-1.42.06.06a1.7 1.7 0 0 0 1.88.34A1.7 1.7 0 0 0 13.4 5.48V5h2v.48a1.7 1.7 0 0 0 1.03 1.56 1.7 1.7 0 0 0 1.88-.34l.06-.06 1.42 1.42-.06.06A1.7 1.7 0 0 0 19.4 10a1.7 1.7 0 0 0 1.56 1.03H21v2h-.04A1.7 1.7 0 0 0 19.4 15Z" />
-                                </svg>
-                            </div> */}
+                                </svg> */}
+                            </div>
 
                             <div className="min-w-0">
                                 <h1 className="text-2xl font-bold text-text sm:text-3xl">การตั้งค่า</h1>
@@ -50,8 +50,6 @@ export default async function SettingsPage() {
                         {/* Profile */}
                         <section className="h-fit overflow-hidden rounded-[26px] bg-surface shadow-[8px_10px_24px_rgba(20,80,143,0.11),-6px_-6px_16px_rgba(255,255,255,0.85)] dark:shadow-[8px_10px_24px_rgba(0,0,0,0.42),-4px_-4px_12px_rgba(255,255,255,0.03)]">
                             <div className="border-b border-border/40 px-5 py-4">
-                                <p className="text-sm font-semibold text-text">โปรไฟล์ของฉัน</p>
-                                <p className="mt-0.5 text-xs text-text-muted">ข้อมูลโปรไฟล์ของคุณ</p>
                                 <p className="text-xl font-bold">โปรไฟล์ของฉัน</p>
                                 <p className="mt-1 text-xs text-text-muted">ข้อมูลโปรไฟล์ของคุณ</p>
                             </div>
@@ -76,8 +74,6 @@ export default async function SettingsPage() {
                             <div className="border-b border-border/40 px-5 py-4 sm:px-6">
                                 <div className="flex items-center justify-between gap-4">
                                     <div>
-                                        <p className="text-sm font-semibold text-text">ข้อมูลบัญชี</p>
-                                        <p className="mt-0.5 text-xs text-text-muted">แก้ไขข้อมูลส่วนตัวของคุณ</p>
                                         <p className="text-xl font-bold">ข้อมูลบัญชี</p>
                                         <p className="mt-1 text-xs text-text-muted">แก้ไขข้อมูลส่วนตัวของคุณ</p>
                                     </div>
