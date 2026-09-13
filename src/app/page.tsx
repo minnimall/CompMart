@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { Navbar } from '@/components/layout/Navbar'
 import { getCategoryIcon } from '@/lib/categoryIcons'
 import { FavoriteButton } from '@/components/products/FavoriteButton'
+import { PromoPopup } from '@/components/PromoPopup'
 
 export default async function Home({
   searchParams,
@@ -59,6 +60,10 @@ export default async function Home({
 
   return (
     <div className="min-h-screen bg-bg">
+      <PromoPopup
+        imageUrl="/images/popup2.jpg"
+        href="/products/new"
+      />
       <Navbar />
 
       <main className="mx-auto max-w-6xl px-4 py-10 sm:px-8">
