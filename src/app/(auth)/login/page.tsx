@@ -22,7 +22,7 @@ export default async function LoginPage({
     return (
         <div>
         <h1 className="text-3xl font-semibold text-text">เข้าสู่ระบบ</h1>
-        <p className="mt-2 text-sm text-text-muted">กลับมาเช็คของที่ถูกใจต่อ</p>
+        <p className="mt-2 text-sm text-text-muted">เข้าสู่บัญชีของคุณเพื่อเลือกคอมและอุปกรณ์ที่คุณต้องการ</p>
 
         {params.message && (
             <p className="mt-6 rounded-2xl bg-secondary/10 px-4 py-3 text-sm text-text
@@ -78,7 +78,7 @@ export default async function LoginPage({
         <form action={signInWithGoogle} className="mt-6">
             <button
                 type="submit"
-                className="flex w-full items-center justify-center gap-3 rounded-2xl border border-border bg-surface py-3.5 text-sm font-medium text-text transition hover:bg-surface-2"
+                className="flex w-full items-center justify-center gap-3 rounded-2xl border border-border bg-surface py-3.5 text-sm font-medium text-text transition hover:bg-surface-2 cursor-pointer"
             >
                 <svg className="h-5 w-5" viewBox="0 0 24 24">
                     <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
