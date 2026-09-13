@@ -63,6 +63,7 @@ export default async function RegisterPage({
             เข้าสู่ระบบ
             </a>
         </p>
+        
         <div className="mt-6 flex items-center gap-3">
             <div className="h-px flex-1 bg-border" />
             <span className="text-xs text-text-muted">หรือ</span>

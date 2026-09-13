@@ -35,6 +35,15 @@ export default async function ResetPasswordPage({
                     </form>
                 </RecoverySessionGate>
             </div>
+
+            <form action={updatePassword} className="mt-8 space-y-5">
+                <PasswordInput name="password" minLength={6} autoComplete="new-password" />
+                <p className="!mt-2 text-xs text-text-muted">อย่างน้อย 6 ตัวอักษร</p>
+
+                <PasswordInput name="confirmPassword" label="ยืนยันรหัสผ่าน" autoComplete="new-password" />
+
+                <SubmitButton label="บันทึกรหัสผ่านใหม่" />
+            </form>
         </div>
     )
 }
