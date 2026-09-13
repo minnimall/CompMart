@@ -86,15 +86,20 @@ export default async function OrdersPage() {
                 {purchases && purchases.length > 0 ? (
                     purchases.map((o) => renderOrder(o, 'buyer'))
                 ) : (
-                    <p className="rounded-2xl bg-surface p-6 text-center text-sm text-text-muted shadow-[inset_3px_3px_10px_rgba(20,80,143,0.1),inset_-3px_-3px_10px_rgba(255,255,255,0.8)] dark:shadow-[inset_3px_3px_10px_rgba(0,0,0,0.4)]">
-                    ยังไม่มีคำสั่งซื้อ
-                    </p>
+                    <div className="rounded-2xl bg-surface p-6 text-center ...">
+                        <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-surface-2 text-text-muted ...">
+                            <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                            </svg>
+                        </div>
+                        <p className="text-sm text-text-muted">ยังไม่มีคำสั่งซื้อ</p>
+                    </div>
                 )}
                 </div>
             </div>
 
             <div>
-                <h2 className="text-lg font-semibold text-text">ออเดอร์ที่ขาย</h2>
+                <h2 className="text-2xl font-semibold text-text">ออเดอร์ที่ขาย</h2>
                 <p className="mt-1 text-sm text-text-muted">รายการที่มีคนสั่งซื้อสินค้าของคุณ</p>
                 <div className="mt-4 space-y-3">
                 {sales && sales.length > 0 ? (

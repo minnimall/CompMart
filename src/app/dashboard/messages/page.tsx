@@ -118,9 +118,16 @@ export default async function MessagesPage() {
                     )
                 })
                 ) : (
-                <p className="rounded-2xl bg-surface p-10 text-center text-sm text-text-muted shadow-[inset_3px_3px_10px_rgba(20,80,143,0.1),inset_-3px_-3px_10px_rgba(255,255,255,0.8)] dark:shadow-[inset_3px_3px_10px_rgba(0,0,0,0.4)]">
-                    ยังไม่มีข้อความ
-                </p>
+                <div className="rounded-2xl bg-surface p-10 text-center shadow-[inset_3px_3px_10px_rgba(20,80,143,0.1),inset_-3px_-3px_10px_rgba(255,255,255,0.8)] dark:shadow-[inset_3px_3px_10px_rgba(0,0,0,0.4)]">
+                    <div className="flex flex-col items-center gap-3">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-surface-2 text-text-muted">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                            </svg>
+                        </div>
+                        <p className="text-sm font-medium text-text-muted">ยังไม่มีข้อความ</p>
+                    </div>
+                </div>
                 )}
             </div>
             </div>

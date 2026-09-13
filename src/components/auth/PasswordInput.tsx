@@ -40,7 +40,7 @@ export function PasswordInput({
             type="button"
             onClick={() => setVisible((v) => !v)}
             aria-label={visible ? 'ซ่อนรหัสผ่าน' : 'แสดงรหัสผ่าน'}
-            className="absolute right-2.5 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-surface text-primary transition shadow-[3px_3px_6px_rgba(20,80,143,0.18),-3px_-3px_6px_rgba(255,255,255,0.9)] active:shadow-[inset_2px_2px_5px_rgba(20,80,143,0.3),inset_-2px_-2px_5px_rgba(255,255,255,0.5)]"
+            className="absolute right-2.5 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-surface text-primary transition cursor-pointer shadow-[3px_3px_6px_rgba(20,80,143,0.06),-3px_-3px_6px_rgba(255,255,255,0.3)] active:shadow-[inset_2px_2px_5px_rgba(20,80,143,0.3),inset_-2px_-2px_5px_rgba(255,255,255,0.5)]"
             >
             {visible ? (
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
