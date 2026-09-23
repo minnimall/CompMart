@@ -2,7 +2,7 @@
 
 เว็บไซต์ community ขายอุปกรณ์คอมพิวเตอร์แฟนไซต์ ที่สามารถลงขายสินค้า ซื้อสินค้า และมีแชทสำหรับติดต่อสอบถามข้อมูลเพิ่มเติม
 
-Demo : [https://rubsarb.vercel.app/](https://comp-mart-hazel.vercel.app/)
+Demo : https://comp-mart-hazel.vercel.app/
 
 
 <img width="1523" height="882" alt="compmart" src="https://github.com/user-attachments/assets/e116bb1b-a875-4aa7-b683-b226f8e6786b" />
