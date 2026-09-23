@@ -1,33 +1,26 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-## Getting Started
 
-First, run the development server:
+# CompMart
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+เว็บไซต์ community ขายอุปกรณ์คอมพิวเตอร์แฟนไซต์ ที่สามารถลงขายสินค้า ซื้อสินค้า และมีแชทสำหรับติดต่อสอบถามข้อมูลเพิ่มเติม
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Demo : https://rubsarb.vercel.app/
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+<img width="1896" height="938" alt="Screenshot 2026-09-19 144731" src="https://github.com/user-attachments/assets/e1abd646-6533-41c8-8321-adc7c6751456" /> 
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-## Learn More
+##ฟีเจอร์
+- โพสต์ขายสินค้า
+- หน้าโปรไฟล์
+- บันทึกรายการโปรด
+- ดูสินค้าตัวเองที่ลงขาย
+- หน้าดูคำสั่งซื้อสินค้า
+- แชทข้อความ
 
-To learn more about Next.js, take a look at the following resources:
+## เทคโนโลยีที่ใช้
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Next.js Supabase Tailwind CSS
 
 ## Deploy on Vercel
 
