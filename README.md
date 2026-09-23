@@ -5,9 +5,10 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 เว็บไซต์ community ขายอุปกรณ์คอมพิวเตอร์แฟนไซต์ ที่สามารถลงขายสินค้า ซื้อสินค้า และมีแชทสำหรับติดต่อสอบถามข้อมูลเพิ่มเติม
 
-Demo : https://rubsarb.vercel.app/
+Demo : [https://rubsarb.vercel.app/](https://comp-mart-hazel.vercel.app/)
 
-<img width="1896" height="938" alt="Screenshot 2026-09-19 144731" src="https://github.com/user-attachments/assets/e1abd646-6533-41c8-8321-adc7c6751456" /> 
+
+<img width="1523" height="882" alt="compmart" src="https://github.com/user-attachments/assets/e116bb1b-a875-4aa7-b683-b226f8e6786b" />
 
 
 ##ฟีเจอร์
