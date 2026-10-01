@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { Navbar } from '@/components/layout/Navbar'
+import { getAuthUser } from '@/lib/supabase/auth'
 
 function formatConversationTime(dateString?: string): string {
     if (!dateString) return ''
@@ -27,7 +28,7 @@ function formatConversationTime(dateString?: string): string {
 
 export default async function MessagesPage() {
     const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
+    const user = await getAuthUser()
     if (!user) redirect('/login')
 
     const { data: conversations } = await supabase

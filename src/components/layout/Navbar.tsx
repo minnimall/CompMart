@@ -5,10 +5,11 @@ import { SearchBar } from './SearchBar'
 import { MobileSearchToggle } from './MobileSearchToggle'
 import { NotificationBell } from './NotificationBell'
 import { getUnreadMessageCount } from '@/lib/actions/notifications'
+import { getAuthUser } from '@/lib/supabase/auth'
 
 export async function Navbar() {
     const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
+    const user = await getAuthUser()
 
     let username = ''
     let avatarUrl: string | null = null

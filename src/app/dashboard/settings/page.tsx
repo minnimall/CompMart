@@ -5,10 +5,11 @@ import { ProfileForm } from '@/components/profile/ProfileForm'
 import { deleteProfile } from '@/lib/actions/profile'
 import { DeleteAccountButton } from '@/components/profile/DeleteAccountButton'
 import { AvatarUpload } from '@/components/profile/AvatarUpload'
+import { getAuthUser } from '@/lib/supabase/auth'
 
 export default async function SettingsPage() {
     const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
+    const user = await getAuthUser()
 
     if (!user) redirect('/login')
 

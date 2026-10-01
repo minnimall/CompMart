@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import { Navbar } from '@/components/layout/Navbar'
 import { MyProductCard } from '@/components/products/MyProductCard'
 import { ProductsPageToast } from '@/components/products/ProductsPageToast'
+import { getAuthUser } from '@/lib/supabase/auth'
 
 export default async function MyProductsPage({
     searchParams,
@@ -11,7 +12,7 @@ export default async function MyProductsPage({
 }) {
     const params = await searchParams
     const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
+    const user = await getAuthUser()
     if (!user) redirect('/login')
 
     const { data: products } = await supabase

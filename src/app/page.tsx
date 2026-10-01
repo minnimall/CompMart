@@ -3,6 +3,7 @@ import { Navbar } from '@/components/layout/Navbar'
 import { getCategoryIcon } from '@/lib/categoryIcons'
 import { FavoriteButton } from '@/components/products/FavoriteButton'
 import { PromoPopup } from '@/components/PromoPopup'
+import { getAuthUser } from '@/lib/supabase/auth'
 
 export default async function Home({
   searchParams,
@@ -11,7 +12,7 @@ export default async function Home({
 }) {
   const { category: selectedSlug, search: searchQuery } = await searchParams
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const user = await getAuthUser()
   const { data: categories } = await supabase.from('categories').select('*')
 
   const activeCategory = categories?.find((c) => c.slug === selectedSlug)
