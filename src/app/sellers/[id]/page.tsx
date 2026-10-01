@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 import { Navbar } from '@/components/layout/Navbar'
 import { ReviewList } from '@/components/reviews/ReviewList'
+import { getAuthUser } from '@/lib/supabase/auth'
 
 export default async function SellerProfilePage({
     params,
@@ -10,10 +11,7 @@ export default async function SellerProfilePage({
 }) {
     const { id } = await params
     const supabase = await createClient()
-
-    const {
-        data: { user },
-    } = await supabase.auth.getUser()
+    const user = await getAuthUser()
 
     const { data: seller } = await supabase
         .from('profiles')

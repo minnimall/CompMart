@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { Navbar } from '@/components/layout/Navbar'
 import { OrderRowActions } from '@/components/orders/OrderRowActions'
+import { getAuthUser } from '@/lib/supabase/auth'
 
 const statusLabel: Record<string, { text: string; className: string }> = {
     pending: { text: 'รอผู้ขายยืนยัน', className: 'bg-amber-50 text-amber-600 dark:bg-amber-500/10' },
@@ -12,7 +13,7 @@ const statusLabel: Record<string, { text: string; className: string }> = {
 
 export default async function OrdersPage() {
     const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
+    const user = await getAuthUser()
     if (!user) redirect('/login')
 
     const orderSelect = `

@@ -5,6 +5,7 @@ import { ProductGallery } from '@/components/products/ProductGallery'
 import { ProductDetailActions } from '@/components/products/ProductDetailActions'
 import { ReviewList } from '@/components/reviews/ReviewList'
 import { FavoriteButton } from '@/components/products/FavoriteButton'
+import { getAuthUser } from '@/lib/supabase/auth'
 
 const conditionLabel: Record<string, string> = {
     new: 'ใหม่',
@@ -20,7 +21,7 @@ export default async function ProductDetailPage({
 }) {
     const { id } = await params
     const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
+    const user = await getAuthUser()
 
     const { data: product } = await supabase
         .from('products')

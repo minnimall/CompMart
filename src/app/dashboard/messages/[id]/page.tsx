@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect, notFound } from 'next/navigation'
 import { Navbar } from '@/components/layout/Navbar'
 import { MessageThread } from '@/components/messages/MessageThread'
+import { getAuthUser } from '@/lib/supabase/auth'
 
 interface Message {
     id: string
@@ -22,7 +23,7 @@ export default async function ConversationPage({
 }) {
     const { id } = await params
     const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
+    const user = await getAuthUser()
     if (!user) redirect('/login')
 
     const { data: conversation } = await supabase

@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { Navbar } from '@/components/layout/Navbar'
 import { ProductForm } from '@/components/products/ProductForm'
+import { getAuthUser } from '@/lib/supabase/auth'
 
 export default async function NewProductPage({
     searchParams,
@@ -10,7 +11,7 @@ export default async function NewProductPage({
 }) {
     const params = await searchParams
     const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
+    const user = await getAuthUser()
     if (!user) redirect('/login')
 
     const { data: categories } = await supabase.from('categories').select('id, name').order('name')
